@@ -18,17 +18,17 @@ export default function Layout() {
         </div>
 
         <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 text-white/80 hover:text-white transition">
-          {isSidebarOpen ? <X /> : <Menu />}
+          {isSidebarOpen ? <X/> : <Menu/>}
         </button>
       </div>
 
       <div className="flex flex-1 gap-3 relative">
         <aside className="hidden md:block w-64 shrink-0">
-          <Sidebar />
+          <Sidebar/>
         </aside>
 
         <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-zinc-900 border-r border-zinc-800 transition-transform duration-300 md:hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <Sidebar />
+          <Sidebar/>
         </aside>
 
         {isSidebarOpen && (
@@ -36,7 +36,7 @@ export default function Layout() {
         )}
 
         <div className="flex flex-col flex-1 gap-3 overflow-y-auto">
-          <Outlet />
+          <Outlet/>
         </div>
       </div>
     </div>
