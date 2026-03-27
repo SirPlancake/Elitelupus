@@ -1,11 +1,11 @@
-import {Unplug, House, Box} from "lucide-react";
+import {Unplug, House, Box, Image} from "lucide-react";
 import {FaSteam, FaDiscord, FaGithub} from "react-icons/fa";
 import {useLocation} from "react-router-dom";
 import Config from "../../../vite.app.config.ts";
 
 const TopActions = [
   { name: "Home", uri: "/", icon: House, status: "NONE" },
-  { name: "Gallery", uri: "/gallery", icon: House, status: "DEV" },
+  { name: "Gallery", uri: "/gallery", icon: Image, status: "DEV" },
   { name: "Model Viewer", uri: "/viewer", icon: Box, status: "BETA" },
 ];
 
