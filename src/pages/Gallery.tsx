@@ -111,7 +111,7 @@ export default function Page() {
                         <div className="flex-1 overflow-y-auto p-3">
                             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {DisplaySkins.map((Skin) => (
-                                    <div className="cursor-pointer flex flex-col border border-zinc-800/75 bg-zinc-950/75 rounded-md p-4 transition hover:border-zinc-700/75 hover:bg-zinc-900/50" onClick={() => { Navigate(`/viewer?skin=${Skin.name}`) }}>
+                                    <div key={Skin.id} className="cursor-pointer flex flex-col border border-zinc-800/75 bg-zinc-950/75 rounded-md p-4 transition hover:border-zinc-700/75 hover:bg-zinc-900/50" onClick={() => { Navigate(`/viewer?skin=${Skin.name}`) }}>
                                         <div className="flex items-center gap-4 overflow-hidden">
                                             <img src={Skin.image_url} alt={Skin.name} className="h-23 w-2/4 rounded-md border border-zinc-700/75 bg-zinc-900/75 object-cover shadow-inner"/>
                                             <div className="flex flex-col justify-center flex-1">
