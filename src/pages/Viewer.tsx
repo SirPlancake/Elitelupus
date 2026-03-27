@@ -5,56 +5,18 @@ import {RefreshCw} from "lucide-react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
 import {OrbitControls, useGLTF} from "@react-three/drei";
 import * as THREE from "three";
+import { type SkinObject, SkinTypes, SkinOrders } from "@/types/Skin.ts";
+import { type ModelObject, ModelTypes, ModelOrders } from "@/types/Model.ts";
 import Config from "../../vite.app.config.ts";
-
-type Skin = {
-  id: number;
-  name: string;
-  internal_id: string;
-  steam_id: string;
-  discord_id: string;
-  image_url: string;
-  texture_url: string;
-  type: number;
-};
-
-const SkinTypes: Record<Skin["type"], string> = {
-  0: "Basic",
-  1: "Management",
-  2: "Unobtainable"
-};
-
-const SkinOrders: Record<number, number> = {
-  1: 0,
-  2: 1,
-  0: 2
-};
-
-type Model = {
-  id: number;
-  name: string;
-  path: string;
-  type: number;
-};
-
-const ModelTypes: Record<Model["type"], string> = {
-  0: "Suit",
-  1: "Weapon"
-};
-
-const ModelOrders: Record<number, number> = {
-  0: 0,
-  1: 1
-};
 
 export default function Page() {
     const Rotation = useRef(false);
     const [SearchParams, setSearchParams] = useSearchParams();
     const [Loading, setLoading] = useState(true);
-    const [Skins, setSkins] = useState<Skin[]>([]);
-    const [Models, setModels] = useState<Model[]>([]);
-    const [SelectedSkin, setSelectedSkin] = useState<Skin | null>(null);
-    const [SelectedModel, setSelectedModel] = useState<Model | null>(null);
+    const [Skins, setSkins] = useState<SkinObject[]>([]);
+    const [Models, setModels] = useState<ModelObject[]>([]);
+    const [SelectedSkin, setSelectedSkin] = useState<SkinObject | null>(null);
+    const [SelectedModel, setSelectedModel] = useState<ModelObject | null>(null);
 
     useEffect(() => {
         let RetryTimer: ReturnType<typeof setTimeout>;
@@ -72,7 +34,7 @@ export default function Page() {
                 ]);
 
                 const SkinsData = (SkinsJson.data || [])
-                    .map((Item: Skin) => ({
+                    .map((Item: SkinObject) => ({
                         id: Item.id,
                         name: Item.name,
                         internal_id: Item.internal_id,
@@ -81,15 +43,15 @@ export default function Page() {
                         image_url: Item.image_url,
                         texture_url: Item.texture_url,
                         type: Item.type,
-                    })).sort((A: Skin, B: Skin) => SkinOrders[A.type] - SkinOrders[B.type]);
+                    })).sort((A: SkinObject, B: SkinObject) => SkinOrders[A.type] - SkinOrders[B.type]);
 
                 const ModelsData = (ModelsJson.data || [])
-                .map((Item: Model) => ({
+                .map((Item: ModelObject) => ({
                     id: Item.id,
                     name: Item.name,
                     path: Item.path,
                     type: Item.type,
-                })).sort((A: Model, B: Model) => ModelOrders[A.type] - ModelOrders[B.type]);
+                })).sort((A: ModelObject, B: ModelObject) => ModelOrders[A.type] - ModelOrders[B.type]);
 
                 setSkins(SkinsData);
                 setModels(ModelsData);
@@ -229,7 +191,7 @@ export default function Page() {
                                     <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                                         <ComboboxEmpty>No items found.</ComboboxEmpty>
                                         <ComboboxList>
-                                            {(Item : Skin) => (
+                                            {(Item : SkinObject) => (
                                                 <ComboboxItem key={Item.internal_id} value={Item.name} className={"cursor-pointer w-full text-left px-3 py-2 text-white hover:bg-zinc-800 data-selected:bg-zinc-800 data-highlighted:bg-zinc-800 rounded-sm data-highlighted:text-gray-300"}>
                                                     [{`${SkinTypes[Item.type]}`}] {Item.name}
                                                 </ComboboxItem>
@@ -245,7 +207,7 @@ export default function Page() {
                                     <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                                         <ComboboxEmpty>No items found.</ComboboxEmpty>
                                         <ComboboxList>
-                                            {(Item : Model) => (
+                                            {(Item : ModelObject) => (
                                                 <ComboboxItem key={Item.id} value={Item.name} className={"cursor-pointer w-full text-left px-3 py-2 text-white hover:bg-zinc-800 data-selected:bg-zinc-800 data-highlighted:bg-zinc-800 rounded-sm data-highlighted:text-gray-300"}>
                                                     [{`${ModelTypes[Item.type]}`}] {Item.name}
                                                 </ComboboxItem>
