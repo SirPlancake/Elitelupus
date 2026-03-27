@@ -5,7 +5,7 @@ import Config from "../../../vite.app.config.ts";
 
 const TopActions = [
   { name: "Home", uri: "/", icon: House, status: "NONE" },
-  { name: "Viewer", uri: "/viewer", icon: Box, status: "DEV" },
+  { name: "Model Viewer", uri: "/viewer", icon: Box, status: "BETA" },
 ];
 
 const BottomActions = [
