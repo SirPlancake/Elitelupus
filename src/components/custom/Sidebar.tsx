@@ -4,8 +4,8 @@ import {useLocation} from "react-router-dom";
 import Config from "../../../vite.app.config.ts";
 
 const TopActions = [
-  { name: "Home", uri: "/", icon: House, status: "NONE" },
-  { name: "Gallery", uri: "/gallery", icon: Image, status: "DEV" },
+  { name: "Home", uri: "/", icon: House, status: "DEV" },
+  { name: "Gallery", uri: "/gallery", icon: Image, status: "NEW" },
   { name: "Model Viewer", uri: "/viewer", icon: Box, status: "BETA" },
 ];
 
