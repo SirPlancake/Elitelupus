@@ -1,3 +1,4 @@
+import {Toaster} from "@/components/ui/sonner";
 import {useState} from "react";
 import {Outlet} from "react-router-dom";
 import {Menu, X} from "lucide-react";
@@ -37,6 +38,9 @@ export default function Layout() {
 
         <div className="flex flex-col flex-1 gap-3 overflow-y-auto">
           <Outlet/>
+          <div className="absolute inset-0 pointer-events-none z-9999">
+            <Toaster richColors position="top-right" />
+          </div>
         </div>
       </div>
     </div>

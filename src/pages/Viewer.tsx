@@ -1,4 +1,5 @@
-import {Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList} from "@/components/ui/combobox"
+import {Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList} from "@/components/ui/combobox";
+import {toast} from "sonner";
 import {useSearchParams} from "react-router-dom";
 import {RefreshCw, Upload} from "lucide-react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
@@ -91,8 +92,31 @@ export default function Page() {
     }, [SelectedModel]);
 
     const HandleUpload = (Interaction: React.ChangeEvent<HTMLInputElement>) => {
-        if (!Interaction.target.files) return;
-        setCustomFile(Interaction.target.files[0]);
+        const File = Interaction.target.files?.[0];
+        
+        if (!File) {
+            toast.error("That file does not exist.")
+            Interaction.target.value = "";
+            return;
+        };
+
+        const IsFileTypeMP4 = File.type === "video/mp4";
+        const IsFileAMP4 = File.name.toLowerCase().endsWith(".mp4");
+
+        if (!IsFileTypeMP4 && !IsFileAMP4) {
+            toast.error("Only MP4 file types are allowed.")
+            Interaction.target.value = "";
+            return;
+        };
+
+        if (File.size > 50 * 1024 * 1024) {
+            toast.error("Uploaded files must be under 50 megabytes.")
+            Interaction.target.value = "";
+            return;
+        };
+
+        toast.success("Successfully loaded the provided mp4.")
+        setCustomFile(File);
     };
 
     const ViewableModel = useMemo(() => {
