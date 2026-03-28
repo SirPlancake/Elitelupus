@@ -123,17 +123,17 @@ export default function Page() {
 
                                         <div className="flex gap-2 mt-3">
                                             <div className="flex flex-1 items-center border border-zinc-700 rounded-md overflow-hidden bg-zinc-800">
-                                                <input type="text" readOnly value={Skin.steam_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none"/>
+                                                <input type="text" readOnly value={Skin.steam_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => { Interaction.stopPropagation(); }}/>
                                                 <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => { Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.steam_id) }}>
                                                     <FaSteam className="h-5 w-5"/>
                                                 </button>
                                             </div>
 
                                             <div className="flex flex-1 items-center border border-zinc-700 rounded-md overflow-hidden bg-zinc-800">
-                                                <input type="text" readOnly value={Skin.discord_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none"/>
+                                                <input type="text" readOnly value={Skin.discord_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => { Interaction.stopPropagation(); }}/>
                                                 <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => { Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.discord_id) }}>
-                                                    <FaDiscord className="h-5 w-5"/>
-                                                </button>
+                                                    <FaDiscord className="h-5 w-5"/></button>
+                                                
                                             </div>
                                         </div>
                                     </div>
