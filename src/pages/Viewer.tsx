@@ -120,12 +120,12 @@ export default function Page() {
     };
 
     const ViewableModel = useMemo(() => {
-        return React.memo(function InnerModel({ Path }: { Path: File | string }) {
+        return React.memo(function InnerModel({Path}: {Path: File | string}) {
             if (!GTLF) return null;
             
             const Group = useRef<THREE.Group>(null);
             const Controls = useRef<any>(null);
-            const { camera } = useThree();
+            const {camera} = useThree();
     
             const Video = useRef<HTMLVideoElement | null>(null);
             const Texture = useRef<THREE.VideoTexture | null>(null);
@@ -182,7 +182,7 @@ export default function Page() {
     
                         Scene.traverse((Object: any) => {
                             if (Object.isMesh) {
-                                Object.material = new THREE.MeshBasicMaterial({ map: Texture.current });
+                                Object.material = new THREE.MeshBasicMaterial({map: Texture.current});
                             };
                         });
                     };
@@ -217,7 +217,7 @@ export default function Page() {
                     <>
                         <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg h-20 flex items-center gap-3">
                             <div className="relative w-60 ml-1 z-35">
-                                <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={(Value: any) => { const Skin = Skins.find((Skin) => Skin.name === Value); if (!Skin) return; setSelectedSkin(Skin); setCustomFile(null); setSearchParams(Previous => { const Parameters = new URLSearchParams(Previous); Parameters.set("skin", Skin.name); return Parameters })}}>
+                                <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={(Value: any) => {const Skin = Skins.find((Skin) => Skin.name === Value); if (!Skin) return; setSelectedSkin(Skin); setCustomFile(null); setSearchParams(Previous => {const Parameters = new URLSearchParams(Previous); Parameters.set("skin", Skin.name); return Parameters})}}>
                                     <ComboboxInput placeholder="Select a skin!" className={"h-full rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}/>
                                     <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                                         <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -233,7 +233,7 @@ export default function Page() {
                             </div>
 
                             <div className="relative w-60 z-35">
-                                <Combobox items={Models} value={SelectedModel?.name || ""} onValueChange={(Value: any) => { const Model = Models.find((Model) => Model.name === Value); if (!Model) return; setSelectedModel(Model); setSearchParams(Previous => { const Parameters = new URLSearchParams(Previous); Parameters.set("model", Model.name); return Parameters })}}>
+                                <Combobox items={Models} value={SelectedModel?.name || ""} onValueChange={(Value: any) => {const Model = Models.find((Model) => Model.name === Value); if (!Model) return; setSelectedModel(Model); setSearchParams(Previous => {const Parameters = new URLSearchParams(Previous); Parameters.set("model", Model.name); return Parameters})}}>
                                     <ComboboxInput placeholder="Select a model!" className={"h-full rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}/>
                                     <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                                         <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -257,7 +257,7 @@ export default function Page() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-3 relative">
-                            <Canvas camera={{ fov: 40 }} className="w-full h-full">
+                            <Canvas camera={{fov: 40}} className="w-full h-full">
                                 <ambientLight intensity={0.6} />
                                 <directionalLight position={[5, 5, 5]} />
                                 {SelectedSkin && <ViewableModel Path={CustomFile || SelectedSkin.texture_url} />}

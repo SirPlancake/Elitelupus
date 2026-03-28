@@ -4,16 +4,16 @@ import {useLocation} from "react-router-dom";
 import Config from "../../../vite.app.config.ts";
 
 const TopActions = [
-  { name: "Home", uri: "/", icon: House, status: "DEV" },
-  { name: "Gallery", uri: "/gallery", icon: Image, status: "NEW" },
-  { name: "Model Viewer", uri: "/viewer", icon: Box, status: "BETA" },
+  {name: "Home", uri: "/", icon: House, status: "DEV"},
+  {name: "Gallery", uri: "/gallery", icon: Image, status: "NEW"},
+  {name: "Model Viewer", uri: "/viewer", icon: Box, status: "BETA"},
 ];
 
 const BottomActions = [
-  { name: "Connect", url: Config.GAME_SERVER_CONNECT, icon: Unplug, mobile: false },
-  { name: "Discord", url: Config.DISCORD_SERVER_URL, icon: FaDiscord, mobile: true },
-  { name: "Steam", url: Config.STEAM_GROUP_URL, icon: FaSteam, mobile: true },
-  { name: "Github", url: Config.GITHUB_URL, icon: FaGithub, mobile: true },
+  {name: "Connect", url: Config.GAME_SERVER_CONNECT, icon: Unplug, mobile: false},
+  {name: "Discord", url: Config.DISCORD_SERVER_URL, icon: FaDiscord, mobile: true},
+  {name: "Steam", url: Config.STEAM_GROUP_URL, icon: FaSteam, mobile: true},
+  {name: "Github", url: Config.GITHUB_URL, icon: FaGithub, mobile: true},
 ];
 
 export default function Sidebar() {
@@ -26,7 +26,7 @@ export default function Sidebar() {
       </div>
 
       <div className="flex-1 flex flex-col p-3 gap-2 overflow-y-auto">
-        {TopActions.map(({ name, uri, icon: Icon, status }) => {
+        {TopActions.map(({name, uri, icon: Icon, status}) => {
           const IsActive = Location.pathname === uri;
 
           return (
@@ -64,7 +64,7 @@ export default function Sidebar() {
 
       <div className="border-t border-zinc-800 bg-zinc-950 p-3 rounded-b-lg">
         <div className="flex w-full gap-2">
-          {BottomActions.slice(0, 4).map(({ name, url, icon: Icon, mobile }) => (
+          {BottomActions.slice(0, 4).map(({name, url, icon: Icon, mobile}) => (
             <a key={name} href={url} title={name} className={`flex flex-1 h-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-white/70 transition hover:border-white/10 hover:bg-white/10 hover:text-white ${!mobile ? "md:pointer-events-auto md:opacity-100 pointer-events-none opacity-40" : ""}`}>
               <Icon className="h-5 w-5" />
             </a>

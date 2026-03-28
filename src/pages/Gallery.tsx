@@ -92,7 +92,7 @@ export default function Page() {
                         <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg h-20 flex items-center gap-3">
                             <div className="relative w-90 ml-1 z-35">
                             <InputGroup className={"h-10.5 rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}>
-                                <InputGroupInput value={Search} onChange={(e) => { const Value = e.target.value; setSearch(Value); setPage(1); if (Value) { setSearchParams({ search: Value }) } else { setSearchParams({}) } }} placeholder="Looking for a skin? Search here."/>
+                                <InputGroupInput value={Search} onChange={(Interaction) => {const Value = Interaction.target.value; setSearch(Value); setPage(1); if (Value) {setSearchParams({search: Value})} else {setSearchParams({})}}} placeholder="Looking for a skin? Search here."/>
                                 <InputGroupAddon>
                                     <InputGroupText>
                                         <SearchIcon className="h-4 w-4 text-zinc-400" />
@@ -111,7 +111,7 @@ export default function Page() {
                         <div className="flex-1 overflow-y-auto p-3">
                             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {DisplaySkins.map((Skin) => (
-                                    <div key={Skin.id} className="cursor-pointer flex flex-col border border-zinc-800/75 bg-zinc-950/75 rounded-md p-4 transition hover:border-zinc-700/75 hover:bg-zinc-900/50" onClick={() => { Navigate(`/viewer?skin=${Skin.name}`) }}>
+                                    <div key={Skin.id} className="cursor-pointer flex flex-col border border-zinc-800/75 bg-zinc-950/75 rounded-md p-4 transition hover:border-zinc-700/75 hover:bg-zinc-900/50" onClick={() => {Navigate(`/viewer?skin=${Skin.name}`)}}>
                                         <div className="flex items-center gap-4 overflow-hidden">
                                             <img src={Skin.image_url} alt={Skin.name} className="h-23 w-2/4 rounded-md border border-zinc-700/75 bg-zinc-900/75 object-cover shadow-inner"/>
                                             <div className="flex flex-col justify-center flex-1">
@@ -123,17 +123,17 @@ export default function Page() {
 
                                         <div className="flex gap-2 mt-3">
                                             <div className="flex flex-1 items-center border border-zinc-700 rounded-md overflow-hidden bg-zinc-800">
-                                                <input type="text" readOnly value={Skin.steam_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => { Interaction.stopPropagation(); }}/>
-                                                <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => { Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.steam_id) }}>
+                                                <input type="text" readOnly value={Skin.steam_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => {Interaction.stopPropagation()}}/>
+                                                <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => {Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.steam_id)}}>
                                                     <FaSteam className="h-5 w-5"/>
                                                 </button>
                                             </div>
 
                                             <div className="flex flex-1 items-center border border-zinc-700 rounded-md overflow-hidden bg-zinc-800">
-                                                <input type="text" readOnly value={Skin.discord_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => { Interaction.stopPropagation(); }}/>
-                                                <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => { Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.discord_id) }}>
-                                                    <FaDiscord className="h-5 w-5"/></button>
-                                                
+                                                <input type="text" readOnly value={Skin.discord_id} className="min-w-0 truncate flex-1 px-3 py-1 bg-transparent text-white text-sm focus:outline-none" onClick={(Interaction) => {Interaction.stopPropagation()}}/>
+                                                <button className="shrink-0 px-3 py-1 bg-zinc-700 hover:bg-zinc-600 transition text-white text-sm font-medium cursor-pointer" onClick={(Interaction) => {Interaction.stopPropagation(); navigator.clipboard.writeText(Skin.discord_id)}}>
+                                                    <FaDiscord className="h-5 w-5"/>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

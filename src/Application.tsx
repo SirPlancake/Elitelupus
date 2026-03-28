@@ -14,10 +14,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <Routes>
         <Route element={<Layout/>}>
-          <Route path="/" element={<Home/>} />
-          <Route path="/gallery" element={<Gallery/>} />
-          <Route path="/viewer" element={<Viewer/>} />
-          <Route path="*" element={<Navigate to="/" replace/>} />
+          <Route path="/" element={<Home/>}/>
+          <Route path="/gallery" element={<Gallery/>}/>
+          <Route path="/viewer" element={<Viewer/>}/>
+          <Route path="*" element={<Navigate to="/" replace/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
