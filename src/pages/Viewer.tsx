@@ -1,6 +1,6 @@
 import {Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList} from "@/components/ui/combobox"
 import {useSearchParams} from "react-router-dom";
-import {RefreshCw} from "lucide-react";
+import {RefreshCw, Upload} from "lucide-react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
 import {OrbitControls, useGLTF} from "@react-three/drei";
 import React, {useRef, useEffect, useState, useMemo} from "react";
@@ -18,6 +18,7 @@ export default function Page() {
     const [Models, setModels] = useState<ModelObject[]>([]);
     const [SelectedSkin, setSelectedSkin] = useState<SkinObject | null>(null);
     const [SelectedModel, setSelectedModel] = useState<ModelObject | null>(null);
+    const [CustomFile, setCustomFile] = useState<File | null>(null);
 
     useEffect(() => {
         let RetryTimer: ReturnType<typeof setTimeout>;
@@ -88,6 +89,11 @@ export default function Page() {
         if (!SelectedModel) return null;
         return useGLTF(SelectedModel.path);
     }, [SelectedModel]);
+
+    const HandleUpload = (Interaction: React.ChangeEvent<HTMLInputElement>) => {
+        if (!Interaction.target.files) return;
+        setCustomFile(Interaction.target.files[0]);
+    };
 
     const ViewableModel = useMemo(() => {
         return React.memo(function InnerModel({ Path }: { Path: File | string }) {
@@ -187,7 +193,7 @@ export default function Page() {
                     <>
                         <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg h-20 flex items-center gap-3">
                             <div className="relative w-60 ml-1 z-35">
-                                <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={(Value: any) => { const Skin = Skins.find((Skin) => Skin.name === Value); if (!Skin) return; setSelectedSkin(Skin); setSearchParams(Previous => { const Parameters = new URLSearchParams(Previous); Parameters.set("skin", Skin.name); return Parameters })}}>
+                                <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={(Value: any) => { const Skin = Skins.find((Skin) => Skin.name === Value); if (!Skin) return; setSelectedSkin(Skin); setCustomFile(null); setSearchParams(Previous => { const Parameters = new URLSearchParams(Previous); Parameters.set("skin", Skin.name); return Parameters })}}>
                                     <ComboboxInput placeholder="Select a skin!" className={"h-full rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}/>
                                     <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                                         <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -217,13 +223,20 @@ export default function Page() {
                                     </ComboboxContent>
                                 </Combobox>
                             </div>
+
+                            <div className="relative">
+                                <label className="cursor-pointer flex flex-1 w-16 h-10.5 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 text-white/70 transition hover:border-zinc-600 hover:text-white">
+                                    <Upload className="h-5 w-5"/>
+                                    <input type="file" accept="video/mp4" className="hidden" onChange={HandleUpload} />
+                                </label>
+                            </div>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-3 relative">
                             <Canvas camera={{ fov: 40 }} className="w-full h-full">
                                 <ambientLight intensity={0.6} />
                                 <directionalLight position={[5, 5, 5]} />
-                                {SelectedSkin && <ViewableModel Path={SelectedSkin.texture_url} />}
+                                {SelectedSkin && <ViewableModel Path={CustomFile || SelectedSkin.texture_url} />}
                             </Canvas>
                         </div>
 
