@@ -64,8 +64,8 @@ export default function Sidebar() {
 
       <div className="border-t border-zinc-800 bg-zinc-950 p-3 rounded-b-lg">
         <div className="flex w-full gap-2">
-          {BottomActions.slice(0, 4).map(({name, url, icon: Icon, mobile}) => (
-            <a key={name} href={url} title={name} className={`flex flex-1 h-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-white/70 transition hover:border-white/10 hover:bg-white/10 hover:text-white ${!mobile ? "md:pointer-events-auto md:opacity-100 pointer-events-none opacity-40" : ""}`}>
+          {BottomActions.slice(0, 4).map(({name: Name, url: URL, icon: Icon, mobile: IsMobile}) => (
+            <a key={Name} href={URL} title={Name} className={`flex flex-1 h-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 text-white/70 transition hover:border-white/10 hover:bg-white/10 hover:text-white ${!IsMobile ? "md:pointer-events-auto md:opacity-100 pointer-events-none opacity-40" : ""}`}>
               <Icon className="h-5 w-5" />
             </a>
           ))}
