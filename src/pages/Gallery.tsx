@@ -28,16 +28,16 @@ export default function Page() {
                 ]);
 
                 const SkinsData = (SkinsJson.data || [])
-                    .map((Item: SkinObject) => ({
-                        id: Item.id,
-                        name: Item.name,
-                        internal_id: Item.internal_id,
-                        steam_id: Item.steam_id,
-                        discord_id: Item.discord_id,
-                        image_url: Item.image_url,
-                        texture_url: Item.texture_url,
-                        type: Item.type,
-                    })).sort((A: SkinObject, B: SkinObject) => SkinOrders[A.type] - SkinOrders[B.type]);
+                .map((Item: SkinObject) => ({
+                    id: Item.id,
+                    name: Item.name,
+                    internal_id: Item.internal_id,
+                    steam_id: Item.steam_id,
+                    discord_id: Item.discord_id,
+                    image_url: Item.image_url,
+                    texture_url: Item.texture_url,
+                    type: Item.type,
+                })).sort((A: SkinObject, B: SkinObject) => SkinOrders[A.type] - SkinOrders[B.type]);
 
                 setSkins(SkinsData);
                 setLoading(false);
