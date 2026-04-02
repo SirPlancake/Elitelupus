@@ -3,7 +3,6 @@ import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import ReactDOM from "react-dom/client";
 
 import Layout from "./Layout.tsx";
-import Home from "./pages/Home.tsx";
 import Gallery from "./pages/Gallery.tsx";
 import Viewer from "./pages/Viewer.tsx";
 
@@ -14,7 +13,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <Routes>
         <Route element={<Layout/>}>
-          <Route path="/" element={<Home/>}/>
+          <Route path="/" element={<Navigate to="/gallery" replace/>}/>
           <Route path="/gallery" element={<Gallery/>}/>
           <Route path="/viewer" element={<Viewer/>}/>
           <Route path="*" element={<Navigate to="/" replace/>}/>
