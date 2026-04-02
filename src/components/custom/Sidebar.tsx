@@ -1,6 +1,6 @@
 import {Unplug, House, Box, Image} from "lucide-react";
 import {FaSteam, FaDiscord, FaGithub} from "react-icons/fa";
-import {useLocation} from "react-router-dom";
+import {useLocation, Link} from "react-router-dom";
 import Config from "../../../vite.app.config.ts";
 
 const TopActions = [
@@ -30,7 +30,7 @@ export default function Sidebar() {
           const IsActive = Location.pathname === URI;
 
           return (
-            <a key={Name} href={URI} className={`flex items-center gap-3 rounded-md px-2 py-2 text-md font-medium transition ${IsActive ? "bg-zinc-800 text-white" : "text-white/70 hover:border-white/10 hover:bg-zinc-950/60 hover:text-white"}`}>
+            <Link key={Name} to={URI} className={`flex items-center gap-3 rounded-md px-2 py-2 text-md font-medium transition ${IsActive ? "bg-zinc-800 text-white" : "text-white/70 hover:border-white/10 hover:bg-zinc-950/60 hover:text-white"}`}>
               <Icon className="h-5 w-5 text-white/80 shrink-0" />
               <span className="flex-1 min-w-0 truncate">{Name}</span>
               {Status && Status !== "NONE" && ["DEV", "NEW", "BETA"].includes(Status) && (
@@ -38,7 +38,7 @@ export default function Sidebar() {
                   {Status}
                 </span>
               )}
-            </a>
+            </Link>
           )
         })}
       </div>
