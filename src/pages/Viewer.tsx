@@ -86,10 +86,7 @@ export default function Page() {
         setSelectedModel(ResultsFound || Models[0]);
     }, [Models, SearchParams]);
 
-    const GTLF = useMemo(() => {
-        if (!SelectedModel) return null;
-        return useGLTF(SelectedModel.path);
-    }, [SelectedModel]);
+    const GTLF = SelectedModel ? useGLTF(SelectedModel.path) : null;
 
     const HandleUpload = (Interaction: React.ChangeEvent<HTMLInputElement>) => {
         const File = Interaction.target.files?.[0];
@@ -168,8 +165,11 @@ export default function Page() {
                     Video.current = CurrentVideo;
                 };
 
+                let ObjectURL: string | null = null;
+
                 if (Path instanceof File) {
-                    CurrentVideo.src = URL.createObjectURL(Path);
+                    ObjectURL = URL.createObjectURL(Path);
+                    CurrentVideo.src = ObjectURL;
                 } else {
                     CurrentVideo.src = Path;
                 };
@@ -188,6 +188,9 @@ export default function Page() {
                     };
 
                     CurrentVideo.play().catch(() => {});
+                    if (ObjectURL) {
+                        URL.revokeObjectURL(ObjectURL);
+                    };
                 };
             
                 CurrentVideo.addEventListener("canplay", HandleCanPlay);
