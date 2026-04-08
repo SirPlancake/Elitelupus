@@ -12,11 +12,13 @@ export type SkinObject = {
 export const SkinTypes: Record<SkinObject["type"], string> = {
   0: "Basic",
   1: "Management",
-  2: "Unobtainable"
+  2: "Unobtainable",
+  3: "Rebranded"
 };
 
 export const SkinOrders: Record<number, number> = {
   1: 0,
-  2: 1,
-  0: 2
+  3: 1,
+  2: 2,
+  0: 3
 };
