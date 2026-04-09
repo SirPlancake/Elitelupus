@@ -173,7 +173,7 @@ export default function Page() {
                 } else {
                     CurrentVideo.src = Path;
                 };
-    
+
                 const HandleCanPlay = () => {
                     if (!Texture.current) {
                         Texture.current = new THREE.VideoTexture(CurrentVideo);
