@@ -48,7 +48,7 @@ export default function InventoryItem({weapon, skin = "plancake", rarity = "comm
 
             <div className="w-32 h-32 border-2 border-zinc-800 bg-zinc-700 rounded-lg overflow-hidden relative">
                 {skin && (
-                    <img src={`/textures/images/${skin}.gif`} alt="Skin Image" className="absolute inset-0 w-full h-full object-contain z-0"/>
+                    <img src={`${skin}`} alt="Skin Image" className="absolute inset-0 w-full h-full object-contain z-0"/>
                 )}
 
                 <div className="absolute inset-0 z-10 p-0.5">
