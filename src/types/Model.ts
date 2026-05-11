@@ -1,7 +1,8 @@
 export type ModelObject = {
   id: number;
   name: string;
-  path: string;
+  model_url: string;
+  class_name: string;
   type: number;
 };
 
