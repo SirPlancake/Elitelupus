@@ -9,6 +9,7 @@ import * as THREE from "three";
 
 import {type SkinObject, SkinTypes, SkinOrders} from "@/types/Skin.ts";
 import {type ModelObject, ModelTypes, ModelOrders} from "@/types/Model.ts";
+import InventoryItem from "@/components/custom/InventoryItem.tsx";
 import Config from "../../vite.app.config.ts";
 
 export default function Page() {
@@ -52,7 +53,8 @@ export default function Page() {
                 .map((Item: ModelObject) => ({
                     id: Item.id,
                     name: Item.name,
-                    path: Item.path,
+                    model_url: Item.model_url,
+                    class_name: Item.class_name,
                     type: Item.type,
                 })).sort((A: ModelObject, B: ModelObject) => ModelOrders[A.type] - ModelOrders[B.type]);
 
@@ -86,7 +88,7 @@ export default function Page() {
         setSelectedModel(ResultsFound || Models[0]);
     }, [Models, SearchParams]);
 
-    const GTLF = SelectedModel ? useGLTF(SelectedModel.path) : null;
+    const GTLF = SelectedModel ? useGLTF(SelectedModel.model_url) : null;
 
     const HandleUpload = (Interaction: React.ChangeEvent<HTMLInputElement>) => {
         const File = Interaction.target.files?.[0];
@@ -260,6 +262,12 @@ export default function Page() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-3 relative">
+                            {SelectedModel?.class_name && (
+                                <div className="absolute bottom-3 left-3 z-40">
+                                    <InventoryItem key={SelectedModel.id} path={SelectedModel.type === 1 ? "weapons" : "suits"} weapon={SelectedModel.class_name || ""} skin={SelectedSkin?.image_url} rarity="common"/>
+                                </div>
+                            )}
+
                             <Canvas camera={{fov: 40}} className="w-full h-full">
                                 <ambientLight intensity={0.6} />
                                 <directionalLight position={[5, 5, 5]} />
