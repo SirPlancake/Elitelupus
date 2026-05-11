@@ -1,3 +1,5 @@
+import {useState} from "react";
+
 type Rarities =
     | "common"
     | "uncommon"
@@ -11,6 +13,7 @@ type Rarities =
 
 type InventoryItemProps = {
     weapon: string;
+    path: string;
     skin?: string;
     rarity?: Rarities;
 };
@@ -27,7 +30,10 @@ const RarityStyles: Record<Rarities, string> = {
     custom: "bg-cyan-300",
 };
 
-export default function InventoryItem({weapon, skin = "plancake", rarity = "common"}: InventoryItemProps) {
+export default function InventoryItem({weapon, path, skin = "plancake", rarity = "common"}: InventoryItemProps) {
+    const FallbackImage = "/images/770e48c9.png";
+    const [ImageSource, setImageSource] = useState<string>(`/images/${path}/${weapon}.png`);
+
     return (
         <>
             <style>
@@ -56,7 +62,7 @@ export default function InventoryItem({weapon, skin = "plancake", rarity = "comm
                 </div>
 
                 <div className="relative z-10 flex items-center justify-center h-full">
-                    <img src={`/images/weapons/${weapon}.png`} alt="Item Icon" className="w-auto h-auto rounded-lg"/>
+                    <img src={ImageSource} alt="Item Icon" className={`w-auto h-auto rounded-lg ${path === "suits" ? "p-0.5 rounded-xl" : "p-0"}`} onError={() => {setImageSource(FallbackImage)}}/>
                 </div>
             </div>
         </>
