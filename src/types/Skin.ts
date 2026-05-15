@@ -16,6 +16,13 @@ export const SkinTypes: Record<SkinObject["type"], string> = {
   3: "Rebranded"
 };
 
+export const SkinColors: Record<SkinObject["type"], string> = {
+  0: "text-gray-500",
+  1: "text-lime-500",
+  2: "text-orange-500",
+  3: "text-purple-500"
+};
+
 export const SkinOrders: Record<number, number> = {
   1: 0,
   3: 1,
