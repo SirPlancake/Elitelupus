@@ -253,10 +253,10 @@ export default function Page() {
                                 </Combobox>
                             </div>
 
-                            <div className="flex gap-2 justify-between items-center px-3 py-1 h-10.5 hover:cursor-pointer hover:border-zinc-600 rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
+                            <label className="flex gap-2 justify-between items-center px-3 py-1 h-10.5 hover:cursor-pointer hover:border-zinc-600 rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
                                 <Upload className="h-5 w-5" />
                                 <input type="file" accept="video/mp4" className="hidden" onChange={HandleUpload} />
-                            </div>
+                            </label>
 
                             <div className="flex gap-2 justify-between items-center">
                                 <button onClick={() => setRotating((Boolean) => !Boolean)} className="px-3 py-1 h-10.5 hover:border-zinc-600 hover:cursor-pointer rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
