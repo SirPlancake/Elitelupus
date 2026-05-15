@@ -3,7 +3,7 @@ import {useSearchParams, useNavigate} from "react-router-dom";
 import {ChevronLeft, ChevronRight, RefreshCw, Search as SearchIcon} from "lucide-react";
 import {FaDiscord, FaSteam} from "react-icons/fa";
 import {useEffect, useState} from "react";
-import {type SkinObject, SkinTypes, SkinOrders} from "@/types/Skin.ts";
+import {type SkinObject, SkinTypes, SkinOrders, SkinColors} from "@/types/Skin.ts";
 import Config from "../../vite.app.config.ts";
 
 export default function Page() {
@@ -116,7 +116,7 @@ export default function Page() {
                                             <img src={Skin.image_url} alt={Skin.name} className="h-23 w-2/4 rounded-md border border-zinc-700/75 bg-zinc-900/75 object-cover shadow-inner"/>
                                             <div className="flex flex-col justify-center flex-1">
                                                 <p className="font-medium text-xl text-gray-300 truncate">{Skin.name}</p>
-                                                <p className={`font-medium ${Skin.type === 3 ? "text-purple-500" : Skin.type === 2 ? "text-orange-500" : Skin.type === 1 ? "text-lime-500" : "text-gray-500"}`}>{SkinTypes[Skin.type]}</p>
+                                                <p className={`font-medium ${SkinColors[Skin.type]}`}>{SkinTypes[Skin.type]}</p>
                                                 <p className="text-gray-400">{Skin.internal_id}</p>
                                             </div>
                                         </div>
