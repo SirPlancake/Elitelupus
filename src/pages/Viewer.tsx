@@ -13,7 +13,6 @@ import InventoryItem from "@/components/custom/InventoryItem.tsx";
 import Config from "../../vite.app.config.ts";
 
 export default function Page() {
-    const Rotation = useRef(false);
     const [SearchParams, setSearchParams] = useSearchParams();
     const [Loading, setLoading] = useState(true);
     const [Skins, setSkins] = useState<SkinObject[]>([]);
