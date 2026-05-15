@@ -14,6 +14,7 @@ export const SkinTypes: Record<SkinObject["type"], string> = {
   1: "Management",
   2: "Unobtainable",
   3: "Rebranded",
+  4: "Admin"
 };
 
 export const SkinColors: Record<SkinObject["type"], string> = {
