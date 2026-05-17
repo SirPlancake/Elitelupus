@@ -4,13 +4,222 @@ import {useSearchParams} from "react-router-dom";
 import {Pause, Play, RefreshCw, Upload} from "lucide-react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
 import {OrbitControls, useGLTF} from "@react-three/drei";
-import React, {useRef, useEffect, useState, useMemo} from "react";
+import React, {Suspense, useRef, useEffect, useState, useMemo} from "react";
 import * as THREE from "three";
+import {clone} from "three/examples/jsm/utils/SkeletonUtils.js";
 
 import {type SkinObject, SkinTypes, SkinOrders} from "@/types/Skin.ts";
 import {type ModelObject, ModelTypes, ModelOrders} from "@/types/Model.ts";
 import InventoryItem from "@/components/custom/InventoryItem.tsx";
 import Config from "../../vite.app.config.ts";
+
+type ViewableModelProps = {
+    ModelPath: string;
+    Path: File | string;
+    IsRotating: boolean;
+};
+
+type VideoFrameElement = HTMLVideoElement & {
+    requestVideoFrameCallback?: (Callback: () => void) => number;
+    cancelVideoFrameCallback?: (Handle: number) => void;
+};
+
+const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRotating}: ViewableModelProps) {
+    const GLTF = useGLTF(ModelPath);
+    const Scene = useMemo(() => clone(GLTF.scene) as THREE.Group, [GLTF.scene]);
+    const Group = useRef<THREE.Group>(null);
+    const Controls = useRef<any>(null);
+    const Video = useRef<HTMLVideoElement | null>(null);
+    const Materials = useRef<{
+        Material: THREE.MeshBasicMaterial;
+        Texture: THREE.VideoTexture;
+        OriginalMaterials: Map<THREE.Mesh, THREE.Material | THREE.Material[]>;
+        IsApplied: boolean;
+    } | null>(null);
+    const {camera, invalidate} = useThree();
+
+    useFrame((_, Delta) => {
+        if (IsRotating && Group.current) {
+            Group.current.rotation.y += Delta * 0.7;
+        };
+    });
+
+    useEffect(() => {
+        if (!IsRotating) return;
+
+        let AnimationFrame = 0;
+
+        const Render = () => {
+            invalidate();
+            AnimationFrame = window.requestAnimationFrame(Render);
+        };
+
+        Render();
+
+        return () => {
+            window.cancelAnimationFrame(AnimationFrame);
+        };
+    }, [IsRotating, invalidate]);
+
+    useEffect(() => {
+        Scene.position.set(0, 0, 0);
+
+        const Box = new THREE.Box3().setFromObject(Scene);
+        if (Box.isEmpty()) return;
+
+        const Center = Box.getCenter(new THREE.Vector3());
+        const Size = Box.getSize(new THREE.Vector3());
+
+        Scene.position.set(-Center.x, -Box.min.y, -Center.z);
+
+        const MaxDim = Math.max(Size.x, Size.y, Size.z);
+        camera.position.set(0, Size.y * 0.5, MaxDim * 2);
+        camera.lookAt(0, Size.y * 0.5, 0);
+
+        Controls.current?.target.set(0, Size.y * 0.5, 0);
+        Controls.current?.update();
+        invalidate();
+    }, [Scene, camera, invalidate]);
+
+    useEffect(() => {
+        const CurrentVideo = document.createElement("video");
+        CurrentVideo.loop = true;
+        CurrentVideo.muted = true;
+        CurrentVideo.playsInline = true;
+        CurrentVideo.crossOrigin = "anonymous";
+        CurrentVideo.preload = "auto";
+
+        const Texture = new THREE.VideoTexture(CurrentVideo);
+        Texture.colorSpace = THREE.SRGBColorSpace;
+        Texture.flipY = false;
+
+        const CurrentMaterials = {
+            Material: new THREE.MeshBasicMaterial({map: Texture}),
+            Texture,
+            OriginalMaterials: new Map<THREE.Mesh, THREE.Material | THREE.Material[]>(),
+            IsApplied: false,
+        };
+
+        Video.current = CurrentVideo;
+        Materials.current = CurrentMaterials;
+
+        return () => {
+            CurrentVideo.pause();
+            CurrentVideo.removeAttribute("src");
+            CurrentVideo.load();
+
+            CurrentMaterials.OriginalMaterials.forEach((OriginalMaterial, Mesh) => {
+                Mesh.material = OriginalMaterial;
+            });
+
+            CurrentMaterials.Material.dispose();
+            CurrentMaterials.Texture.dispose();
+
+            if (Video.current === CurrentVideo) {
+                Video.current = null;
+            };
+
+            if (Materials.current === CurrentMaterials) {
+                Materials.current = null;
+            };
+        };
+    }, [Scene]);
+
+    useEffect(() => {
+        const CurrentVideo = Video.current as VideoFrameElement | null;
+        if (!CurrentVideo) return;
+
+        let ObjectURL: string | null = null;
+        let IsCancelled = false;
+        let VideoFrame: number | null = null;
+        let AnimationFrame: number | null = null;
+
+        const StopFrames = () => {
+            if (VideoFrame !== null && CurrentVideo.cancelVideoFrameCallback) {
+                CurrentVideo.cancelVideoFrameCallback(VideoFrame);
+                VideoFrame = null;
+            };
+
+            if (AnimationFrame !== null) {
+                window.cancelAnimationFrame(AnimationFrame);
+                AnimationFrame = null;
+            };
+        };
+
+        const QueueFrame = () => {
+            if (IsCancelled) return;
+
+            invalidate();
+
+            if (CurrentVideo.requestVideoFrameCallback) {
+                VideoFrame = CurrentVideo.requestVideoFrameCallback(QueueFrame);
+            } else {
+                AnimationFrame = window.requestAnimationFrame(QueueFrame);
+            };
+        };
+
+        const ApplyMaterial = () => {
+            const CurrentMaterials = Materials.current;
+            if (!CurrentMaterials || CurrentMaterials.IsApplied) return;
+
+            Scene.traverse((Object) => {
+                const Mesh = Object as THREE.Mesh;
+
+                if (Mesh.isMesh) {
+                    CurrentMaterials.OriginalMaterials.set(Mesh, Mesh.material);
+                    Mesh.material = CurrentMaterials.Material;
+                };
+            });
+
+            CurrentMaterials.IsApplied = true;
+        };
+
+        const HandleCanPlay = () => {
+            ApplyMaterial();
+            CurrentVideo.play().catch(() => {});
+            StopFrames();
+            QueueFrame();
+
+            if (ObjectURL) {
+                URL.revokeObjectURL(ObjectURL);
+                ObjectURL = null;
+            };
+        };
+
+        CurrentVideo.addEventListener("canplay", HandleCanPlay);
+
+        if (Path instanceof File) {
+            ObjectURL = URL.createObjectURL(Path);
+            CurrentVideo.src = ObjectURL;
+        } else {
+            CurrentVideo.src = Path;
+        };
+
+        CurrentVideo.load();
+
+        if (CurrentVideo.readyState >= 3) {
+            HandleCanPlay();
+        };
+
+        return () => {
+            IsCancelled = true;
+            CurrentVideo.removeEventListener("canplay", HandleCanPlay);
+            StopFrames();
+            CurrentVideo.pause();
+
+            if (ObjectURL) {
+                URL.revokeObjectURL(ObjectURL);
+            };
+        };
+    }, [Path, Scene, invalidate]);
+
+    return (
+        <>
+            <primitive ref={Group} object={Scene} dispose={null} />
+            <OrbitControls ref={Controls} enableZoom enablePan={false} onChange={() => invalidate()} />
+        </>
+    );
+});
 
 export default function Page() {
     const [SearchParams, setSearchParams] = useSearchParams();
@@ -88,8 +297,6 @@ export default function Page() {
         setSelectedModel(ResultsFound || Models[0]);
     }, [Models, SearchParams]);
 
-    const GTLF = SelectedModel ? useGLTF(SelectedModel.model_url) : null;
-
     const HandleUpload = (Interaction: React.ChangeEvent<HTMLInputElement>) => {
         const File = Interaction.target.files?.[0];
         
@@ -117,99 +324,6 @@ export default function Page() {
         toast.success("Successfully loaded the provided mp4.")
         setCustomFile(File);
     };
-
-    const ViewableModel = useMemo(() => {
-        return React.memo(function InnerModel({Path, IsRotating}: {Path: File | string, IsRotating: Boolean}) {
-            if (!GTLF) return null;
-            
-            const Group = useRef<THREE.Group>(null);
-            const Controls = useRef<any>(null);
-            const {camera} = useThree();
-    
-            const Video = useRef<HTMLVideoElement | null>(null);
-            const Texture = useRef<THREE.VideoTexture | null>(null);
-    
-            useFrame((_, Delta) => {
-                if (IsRotating && Group.current) {
-                    Group.current.rotation.y += Delta * 0.7;
-                };
-            });
-    
-            useEffect(() => {
-                const Scene = GTLF.scene;
-                const Box = new THREE.Box3().setFromObject(Scene);
-                const Center = Box.getCenter(new THREE.Vector3());
-                const Size = Box.getSize(new THREE.Vector3());
-    
-                Scene.position.x -= Center.x;
-                Scene.position.z -= Center.z;
-                Scene.position.y -= Box.min.y;
-    
-                const MaxDim = Math.max(Size.x, Size.y, Size.z);
-                camera.position.set(0, Size.y * 0.5, MaxDim * 2);
-                camera.lookAt(0, Size.y * 0.5, 0);
-    
-                Controls.current?.target.set(0, Size.y * 0.5, 0);
-                Controls.current?.update();
-            }, [GTLF, camera]);
-    
-            useEffect(() => {
-                const Scene = GTLF.scene;
-                let CurrentVideo = Video.current;
-    
-                if (!CurrentVideo) {
-                    CurrentVideo = document.createElement("video");
-                    CurrentVideo.loop = true;
-                    CurrentVideo.muted = true;
-                    CurrentVideo.playsInline = true;
-                    CurrentVideo.crossOrigin = "anonymous";
-                    CurrentVideo.preload = "auto";
-                    Video.current = CurrentVideo;
-                };
-
-                let ObjectURL: string | null = null;
-
-                if (Path instanceof File) {
-                    ObjectURL = URL.createObjectURL(Path);
-                    CurrentVideo.src = ObjectURL;
-                } else {
-                    CurrentVideo.src = Path;
-                };
-
-                const HandleCanPlay = () => {
-                    if (!Texture.current) {
-                        Texture.current = new THREE.VideoTexture(CurrentVideo);
-                        Texture.current.colorSpace = THREE.SRGBColorSpace;
-                        Texture.current.flipY = false;
-    
-                        Scene.traverse((Object: any) => {
-                            if (Object.isMesh) {
-                                Object.material = new THREE.MeshBasicMaterial({map: Texture.current});
-                            };
-                        });
-                    };
-
-                    CurrentVideo.play().catch(() => {});
-                    if (ObjectURL) {
-                        URL.revokeObjectURL(ObjectURL);
-                    };
-                };
-            
-                CurrentVideo.addEventListener("canplay", HandleCanPlay);
-
-                return () => {
-                    CurrentVideo.removeEventListener("canplay", HandleCanPlay);
-                };
-            }, [GTLF, Path]);
-    
-            return (
-                <>
-                    <primitive ref={Group} object={GTLF.scene} />
-                    <OrbitControls ref={Controls} enableZoom enablePan={false} />
-                </>
-            );
-        });
-    }, [GTLF]);
 
     return (
         <>
@@ -272,10 +386,12 @@ export default function Page() {
                                 </div>
                             )}
 
-                            <Canvas camera={{fov: 40}} className="w-full h-full">
+                            <Canvas camera={{fov: 40}} frameloop="demand" className="w-full h-full">
                                 <ambientLight intensity={0.6} />
                                 <directionalLight position={[5, 5, 5]} />
-                                {SelectedSkin && <ViewableModel Path={CustomFile || SelectedSkin.texture_url} IsRotating={Rotating}/>}
+                                <Suspense fallback={null}>
+                                    {SelectedModel && SelectedSkin && <ViewableModel ModelPath={SelectedModel.model_url} Path={CustomFile || SelectedSkin.texture_url} IsRotating={Rotating}/>}
+                                </Suspense>
                             </Canvas>
                         </div>
 
