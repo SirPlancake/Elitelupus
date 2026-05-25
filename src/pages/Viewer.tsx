@@ -93,6 +93,8 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
         const Texture = new THREE.VideoTexture(CurrentVideo);
         Texture.colorSpace = THREE.SRGBColorSpace;
         Texture.flipY = false;
+        Texture.wrapS = THREE.RepeatWrapping;
+        Texture.wrapT = THREE.RepeatWrapping;
 
         const CurrentMaterials = {
             Material: new THREE.MeshBasicMaterial({map: Texture}),
