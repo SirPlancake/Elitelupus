@@ -4,8 +4,8 @@ import {ChevronLeft, ChevronRight, RefreshCw, Search as SearchIcon} from "lucide
 import {FaDiscord, FaSteam} from "react-icons/fa";
 import {useEffect, useMemo, useState} from "react";
 import {type SkinObject, SkinTypes, SkinOrders, SkinColors} from "@/types/Skin.ts";
-import Config from "../../vite.app.config.ts";
 import {useLayoutTopbar} from "@/components/custom/LayoutTopbar.tsx";
+
 export default function Page() {
     const [SearchParams, setSearchParams] = useSearchParams();
     const [Loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ export default function Page() {
         const FetchData = async () => {
             try {
                 const [SkinsResponse] = await Promise.all([
-                    fetch(`${Config.API_URL}/gmod/skins`)
+                    fetch(`/api/skins`)
                 ]);
 
                 const [SkinsJson] = await Promise.all([
