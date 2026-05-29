@@ -12,6 +12,7 @@ import {type SkinObject, SkinTypes, SkinOrders} from "@/types/Skin.ts";
 import {type ModelObject, ModelTypes, ModelOrders} from "@/types/Model.ts";
 import InventoryItem from "@/components/custom/InventoryItem.tsx";
 import {useLayoutTopbar} from "@/components/custom/LayoutTopbar.tsx";
+import Config from "../../vite.app.config.js";
 
 type ViewableModelProps = {
     ModelPath: string;
@@ -239,8 +240,8 @@ export default function Page() {
         const FetchData = async () => {
             try {
                 const [SkinsResponse, ModelsResponse] = await Promise.all([
-                    fetch(`/api/skins`),
-                    fetch(`/api/models`)
+                    fetch(`${Config.API_URL}/skins`),
+                    fetch(`${Config.API_URL}/models`)
                 ]);
 
                 const [SkinsJson, ModelsJson] = await Promise.all([

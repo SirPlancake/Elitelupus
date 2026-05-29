@@ -5,6 +5,7 @@ import {FaDiscord, FaSteam} from "react-icons/fa";
 import {useEffect, useMemo, useState} from "react";
 import {type SkinObject, SkinTypes, SkinOrders, SkinColors} from "@/types/Skin.ts";
 import {useLayoutTopbar} from "@/components/custom/LayoutTopbar.tsx";
+import Config from "../../vite.app.config.js";
 
 export default function Page() {
     const [SearchParams, setSearchParams] = useSearchParams();
@@ -20,7 +21,7 @@ export default function Page() {
         const FetchData = async () => {
             try {
                 const [SkinsResponse] = await Promise.all([
-                    fetch(`/api/skins`)
+                    fetch(`${Config.API_URL}/skins`)
                 ]);
 
                 const [SkinsJson] = await Promise.all([
