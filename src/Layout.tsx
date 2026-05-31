@@ -9,9 +9,11 @@ import {LayoutTopbarContext} from "./components/custom/LayoutTopbar.tsx";
 export default function Layout() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [TopbarContent, setTopbarContent] = useState<ReactNode>(null);
+  const [TopbarHidden, setTopbarHidden] = useState(false);
 
   const TopbarContextValue = useMemo(() => ({
     setTopbarContent: (Content: ReactNode) => setTopbarContent(Content),
+    setTopbarHidden: (Hidden: boolean) => setTopbarHidden(Hidden),
   }), []);
 
   return (
@@ -46,15 +48,17 @@ export default function Layout() {
           )}
 
           <main className="relative flex min-h-0 flex-1 flex-col rounded-lg border border-zinc-800/75 bg-zinc-900/75 overflow-hidden">
-            <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg min-h-20 flex flex-wrap items-center gap-3">
-              <div className="min-w-0 flex flex-1 flex-wrap items-center gap-3">
-                {TopbarContent}
-              </div>
+            {!TopbarHidden && (
+              <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg min-h-20 flex flex-wrap items-center gap-3">
+                <div className="min-w-0 flex flex-1 flex-wrap items-center gap-3">
+                  {TopbarContent}
+                </div>
 
-              <div className="ml-auto mr-1 shrink-0">
-                <OnlineUsers/>
+                <div className="ml-auto mr-1 shrink-0">
+                  <OnlineUsers/>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex min-h-0 flex-1 flex-col">
               <Outlet/>

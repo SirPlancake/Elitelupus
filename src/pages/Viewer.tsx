@@ -3,7 +3,7 @@ import {toast} from "sonner";
 import {useSearchParams} from "react-router-dom";
 import {Pause, Play, RefreshCw, Upload} from "lucide-react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
-import {OrbitControls, useGLTF} from "@react-three/drei";
+import {OrbitControls, useGLTF, useProgress} from "@react-three/drei";
 import React, {Suspense, useRef, useEffect, useState, useMemo, useCallback} from "react";
 import * as THREE from "three";
 import {clone} from "three/examples/jsm/utils/SkeletonUtils.js";
@@ -18,6 +18,8 @@ type ViewableModelProps = {
     ModelPath: string;
     Path: File | string;
     IsRotating: boolean;
+    OnModelReady: (ModelPath: string) => void;
+    OnSkinLoadChange: (State: ViewerLoadState) => void;
 };
 
 type VideoFrameElement = HTMLVideoElement & {
@@ -25,11 +27,100 @@ type VideoFrameElement = HTMLVideoElement & {
     cancelVideoFrameCallback?: (Handle: number) => void;
 };
 
-const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRotating}: ViewableModelProps) {
+type ViewerLoadState = {
+    IsActive: boolean;
+    Progress: number;
+    Label: string;
+    Detail?: string;
+};
+
+type ApiResponse<T> = {
+    data?: T[];
+};
+
+const EmptyLoadState: ViewerLoadState = {
+    IsActive: false,
+    Progress: 0,
+    Label: "",
+};
+
+const PreloadedModelPaths = new Set<string>();
+const PreloadedTexturePaths = new Set<string>();
+
+const ClampProgress = (Progress: number) => Math.max(0, Math.min(100, Math.round(Progress)));
+
+const FormatAssetName = (Path: string) => {
+    const CleanPath = Path.split("?")[0];
+    const Segments = CleanPath.split("/");
+    return decodeURIComponent(Segments[Segments.length - 1] || CleanPath);
+};
+
+const PreloadModel = (ModelPath: string) => {
+    if (!ModelPath || PreloadedModelPaths.has(ModelPath)) return;
+
+    PreloadedModelPaths.add(ModelPath);
+    useGLTF.preload(ModelPath);
+};
+
+const PreloadTexture = (Path: File | string) => {
+    if (Path instanceof File || !Path || PreloadedTexturePaths.has(Path)) return;
+
+    PreloadedTexturePaths.add(Path);
+
+    const Link = document.createElement("link");
+    Link.rel = "preload";
+    Link.as = "video";
+    Link.href = Path;
+    Link.crossOrigin = "anonymous";
+    Link.setAttribute("fetchpriority", "high");
+    document.head.appendChild(Link);
+};
+
+const FetchApiData = async <T,>(Path: string, signal: AbortSignal): Promise<ApiResponse<T>> => {
+    const Response = await fetch(`${Config.API_URL}${Path}`, {signal});
+
+    if (!Response.ok) {
+        throw new Error(`Request failed with status ${Response.status}`);
+    };
+
+    return Response.json() as Promise<ApiResponse<T>>;
+};
+
+function ViewerLoadingScreen({State}: {State: ViewerLoadState}) {
+    if (!State.IsActive) return null;
+
+    const Progress = ClampProgress(State.Progress);
+
+    return (
+        <div className="absolute inset-0 z-40 flex items-center justify-center overflow-hidden bg-zinc-950/80 backdrop-blur-sm">
+            <div className="flex w-full max-w-sm flex-col items-center px-6 text-center">
+                <div className="relative flex h-20 w-20 items-center justify-center">
+                    <div className="absolute inset-1 rounded-full border-2 border-zinc-700 border-t-lime-400 animate-spin" />
+                    <RefreshCw className="h-6 w-6 animate-spin text-lime-300" />
+                </div>
+
+                <p className="mt-6 text-base font-medium text-zinc-100">{State.Label}</p>
+
+                <div className="mt-5 w-full bg-zinc-800/30 rounded-md border border-zinc-800 p-3">
+                    <div className="flex items-center justify-between text-xs text-zinc-500">
+                        <span>Preparing</span>
+                        <span className="tabular-nums">{Progress}%</span>
+                    </div>
+
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-800">
+                        <div className="h-full rounded-full bg-lime-400 shadow-[0_0_18px_rgba(163,230,53,0.45)] transition-[width] duration-200 ease-out" style={{width: `${Progress}%`}} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRotating, OnModelReady, OnSkinLoadChange}: ViewableModelProps) {
     const GLTF = useGLTF(ModelPath);
     const Scene = useMemo(() => clone(GLTF.scene) as THREE.Group, [GLTF.scene]);
     const Group = useRef<THREE.Group>(null);
-    const Controls = useRef<any>(null);
+    const Controls = useRef<React.ElementRef<typeof OrbitControls>>(null);
     const Video = useRef<HTMLVideoElement | null>(null);
     const Materials = useRef<{
         Material: THREE.MeshBasicMaterial;
@@ -38,6 +129,10 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
         IsApplied: boolean;
     } | null>(null);
     const {camera, invalidate} = useThree();
+
+    useEffect(() => {
+        OnModelReady(ModelPath);
+    }, [ModelPath, OnModelReady]);
 
     useFrame((_, Delta) => {
         if (IsRotating && Group.current) {
@@ -93,11 +188,14 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
         const Texture = new THREE.VideoTexture(CurrentVideo);
         Texture.colorSpace = THREE.SRGBColorSpace;
         Texture.flipY = false;
+        Texture.generateMipmaps = false;
+        Texture.magFilter = THREE.LinearFilter;
+        Texture.minFilter = THREE.LinearFilter;
         Texture.wrapS = THREE.RepeatWrapping;
         Texture.wrapT = THREE.RepeatWrapping;
 
         const CurrentMaterials = {
-            Material: new THREE.MeshBasicMaterial({map: Texture}),
+            Material: new THREE.MeshBasicMaterial({map: Texture, toneMapped: false}),
             Texture,
             OriginalMaterials: new Map<THREE.Mesh, THREE.Material | THREE.Material[]>(),
             IsApplied: false,
@@ -134,8 +232,21 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
 
         let ObjectURL: string | null = null;
         let IsCancelled = false;
+        let IsTextureReady = false;
         let VideoFrame: number | null = null;
         let AnimationFrame: number | null = null;
+        const TextureDetail = Path instanceof File ? Path.name : FormatAssetName(Path);
+
+        const ReportProgress = (Progress: number, Label: string, IsActive = true) => {
+            if (IsCancelled) return;
+
+            OnSkinLoadChange({
+                IsActive,
+                Progress: ClampProgress(Progress),
+                Label,
+                Detail: TextureDetail,
+            });
+        };
 
         const StopFrames = () => {
             if (VideoFrame !== null && CurrentVideo.cancelVideoFrameCallback) {
@@ -177,19 +288,36 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
             CurrentMaterials.IsApplied = true;
         };
 
-        const HandleCanPlay = () => {
+        const HandleLoadStart = () => ReportProgress(12, "Loading skin texture");
+        const HandleLoadedMetadata = () => ReportProgress(40, "Reading skin texture");
+        const HandleWaiting = () => {
+            if (!IsTextureReady) ReportProgress(82, "Buffering skin texture");
+        };
+        const HandleError = () => {
+            ReportProgress(0, "Skin texture failed", false);
+            toast.error("Unable to load that skin texture.");
+        };
+
+        const HandleTextureReady = () => {
+            if (IsCancelled || IsTextureReady) return;
+
+            IsTextureReady = true;
             ApplyMaterial();
             CurrentVideo.play().catch(() => {});
             StopFrames();
             QueueFrame();
-
-            if (ObjectURL) {
-                URL.revokeObjectURL(ObjectURL);
-                ObjectURL = null;
-            };
+            ReportProgress(100, "Skin texture ready", false);
         };
 
-        CurrentVideo.addEventListener("canplay", HandleCanPlay);
+        ReportProgress(5, "Queueing skin texture");
+        CurrentVideo.addEventListener("loadstart", HandleLoadStart);
+        CurrentVideo.addEventListener("loadedmetadata", HandleLoadedMetadata);
+        CurrentVideo.addEventListener("loadeddata", HandleTextureReady);
+        CurrentVideo.addEventListener("waiting", HandleWaiting);
+        CurrentVideo.addEventListener("stalled", HandleWaiting);
+        CurrentVideo.addEventListener("error", HandleError);
+        CurrentVideo.addEventListener("canplay", HandleTextureReady);
+        CurrentVideo.addEventListener("playing", HandleTextureReady);
 
         if (Path instanceof File) {
             ObjectURL = URL.createObjectURL(Path);
@@ -200,13 +328,20 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
 
         CurrentVideo.load();
 
-        if (CurrentVideo.readyState >= 3) {
-            HandleCanPlay();
+        if (CurrentVideo.readyState >= 2) {
+            HandleTextureReady();
         };
 
         return () => {
             IsCancelled = true;
-            CurrentVideo.removeEventListener("canplay", HandleCanPlay);
+            CurrentVideo.removeEventListener("loadstart", HandleLoadStart);
+            CurrentVideo.removeEventListener("loadedmetadata", HandleLoadedMetadata);
+            CurrentVideo.removeEventListener("loadeddata", HandleTextureReady);
+            CurrentVideo.removeEventListener("waiting", HandleWaiting);
+            CurrentVideo.removeEventListener("stalled", HandleWaiting);
+            CurrentVideo.removeEventListener("error", HandleError);
+            CurrentVideo.removeEventListener("canplay", HandleTextureReady);
+            CurrentVideo.removeEventListener("playing", HandleTextureReady);
             StopFrames();
             CurrentVideo.pause();
 
@@ -214,7 +349,7 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
                 URL.revokeObjectURL(ObjectURL);
             };
         };
-    }, [Path, Scene, invalidate]);
+    }, [Path, Scene, OnSkinLoadChange, invalidate]);
 
     return (
         <>
@@ -226,27 +361,26 @@ const ViewableModel = React.memo(function ViewableModel({ModelPath, Path, IsRota
 
 export default function Page() {
     const [SearchParams, setSearchParams] = useSearchParams();
+    const ModelLoadProgress = useProgress();
     const [Loading, setLoading] = useState(true);
     const [Skins, setSkins] = useState<SkinObject[]>([]);
     const [Models, setModels] = useState<ModelObject[]>([]);
     const [SelectedSkin, setSelectedSkin] = useState<SkinObject | null>(null);
     const [SelectedModel, setSelectedModel] = useState<ModelObject | null>(null);
     const [CustomFile, setCustomFile] = useState<File | null>(null);
+    const [PendingModelPath, setPendingModelPath] = useState<string | null>(null);
+    const [SkinLoadState, setSkinLoadState] = useState<ViewerLoadState>(EmptyLoadState);
     const [Rotating, setRotating] = useState(true);
 
     useEffect(() => {
-        let RetryTimer: ReturnType<typeof setTimeout>;
+        const Controller = new AbortController();
+        let RetryTimer: ReturnType<typeof setTimeout> | null = null;
 
         const FetchData = async () => {
             try {
-                const [SkinsResponse, ModelsResponse] = await Promise.all([
-                    fetch(`${Config.API_URL}/skins`),
-                    fetch(`${Config.API_URL}/models`)
-                ]);
-
                 const [SkinsJson, ModelsJson] = await Promise.all([
-                    SkinsResponse.json(),
-                    ModelsResponse.json()
+                    FetchApiData<SkinObject>("/skins", Controller.signal),
+                    FetchApiData<ModelObject>("/models", Controller.signal),
                 ]);
 
                 const SkinsData = (SkinsJson.data || [])
@@ -274,37 +408,110 @@ export default function Page() {
                 setModels(ModelsData);
                 setLoading(false);
             } catch {
+                if (Controller.signal.aborted) return;
+
                 setLoading(true);
-                RetryTimer = setTimeout(FetchData, 5000);
+                RetryTimer = window.setTimeout(FetchData, 5000);
             };
         };
 
         FetchData();
 
         return () => {
-            if (RetryTimer) clearTimeout(RetryTimer);
+            Controller.abort();
+            if (RetryTimer) window.clearTimeout(RetryTimer);
         };
     }, []);
 
     useEffect(() => {
         if (!Skins.length) return;
+
         const SkinParameter = SearchParams.get("skin");
-        const ResultsFound = Skins.find((Skin) => Skin.name === SkinParameter);
-        setSelectedSkin(ResultsFound || Skins[0]);
+        const NextSkin = Skins.find((Skin) => Skin.name === SkinParameter) || Skins[0];
+
+        PreloadTexture(NextSkin.texture_url);
+        setSelectedSkin(NextSkin);
     }, [Skins, SearchParams]);
 
     useEffect(() => {
         if (!Models.length) return;
+
         const ModelParameter = SearchParams.get("model");
-        const ResultsFound = Models.find((Model) => Model.name === ModelParameter);
-        setSelectedModel(ResultsFound || Models[0]);
-    }, [Models, SearchParams]);
+        const NextModel = Models.find((Model) => Model.name === ModelParameter) || Models[0];
+        if (SelectedModel?.model_url === NextModel.model_url) return;
+
+        PreloadModel(NextModel.model_url);
+        setPendingModelPath(NextModel.model_url);
+        setSelectedModel(NextModel);
+    }, [Models, SearchParams, SelectedModel?.model_url]);
+
+    useEffect(() => {
+        if (!SelectedSkin) return;
+
+        const TexturePath = CustomFile || SelectedSkin.texture_url;
+
+        PreloadTexture(TexturePath);
+        setSkinLoadState({
+            IsActive: true,
+            Progress: 5,
+            Label: "Queueing skin texture",
+            Detail: TexturePath instanceof File ? TexturePath.name : FormatAssetName(TexturePath),
+        });
+    }, [CustomFile, SelectedSkin]);
+
+    const HandleModelReady = useCallback((ModelPath: string) => {
+        setPendingModelPath((CurrentPath) => CurrentPath === ModelPath ? null : CurrentPath);
+    }, []);
+
+    const HandleSkinLoadChange = useCallback((State: ViewerLoadState) => {
+        setSkinLoadState(State);
+    }, []);
+
+    const HandleSkinChange = useCallback((Value: unknown) => {
+        if (typeof Value !== "string") return;
+
+        const Skin = Skins.find((Skin) => Skin.name === Value);
+        if (!Skin) return;
+        if (!CustomFile && SelectedSkin?.texture_url === Skin.texture_url) return;
+
+        PreloadTexture(Skin.texture_url);
+        setSkinLoadState({
+            IsActive: true,
+            Progress: 5,
+            Label: "Queueing skin texture",
+            Detail: FormatAssetName(Skin.texture_url),
+        });
+        setSelectedSkin(Skin);
+        setCustomFile(null);
+        setSearchParams(Previous => {
+            const Parameters = new URLSearchParams(Previous);
+            Parameters.set("skin", Skin.name);
+            return Parameters;
+        });
+    }, [CustomFile, SelectedSkin?.texture_url, Skins, setSearchParams]);
+
+    const HandleModelChange = useCallback((Value: unknown) => {
+        if (typeof Value !== "string") return;
+
+        const Model = Models.find((Model) => Model.name === Value);
+        if (!Model) return;
+        if (SelectedModel?.model_url === Model.model_url) return;
+
+        PreloadModel(Model.model_url);
+        setPendingModelPath(Model.model_url);
+        setSelectedModel(Model);
+        setSearchParams(Previous => {
+            const Parameters = new URLSearchParams(Previous);
+            Parameters.set("model", Model.name);
+            return Parameters;
+        });
+    }, [Models, SelectedModel?.model_url, setSearchParams]);
 
     const HandleUpload = useCallback((Interaction: React.ChangeEvent<HTMLInputElement>) => {
         const File = Interaction.target.files?.[0];
         
         if (!File) {
-            toast.error("That file does not exist.")
+            toast.error("That file does not exist.");
             Interaction.target.value = "";
             return;
         };
@@ -313,20 +520,63 @@ export default function Page() {
         const IsFileAMP4 = File.name.toLowerCase().endsWith(".mp4");
 
         if (!IsFileTypeMP4 && !IsFileAMP4) {
-            toast.error("Only MP4 file types are allowed.")
+            toast.error("Only MP4 file types are allowed.");
             Interaction.target.value = "";
             return;
         };
 
         if (File.size > 50 * 1024 * 1024) {
-            toast.error("Uploaded files must be under 50 megabytes.")
+            toast.error("Uploaded files must be under 50 megabytes.");
             Interaction.target.value = "";
             return;
         };
 
-        toast.success("Successfully loaded the provided mp4.")
+        toast.success("Successfully loaded the provided mp4.");
+        setSkinLoadState({
+            IsActive: true,
+            Progress: 5,
+            Label: "Queueing skin texture",
+            Detail: File.name,
+        });
         setCustomFile(File);
+        Interaction.target.value = "";
     }, []);
+
+    const CurrentLoadState = useMemo<ViewerLoadState>(() => {
+        if (Loading) {
+            return {
+                IsActive: true,
+                Progress: 18,
+                Label: "Loading viewer data",
+                Detail: "Skins and models",
+            };
+        };
+
+        if (!SelectedModel || !SelectedSkin) {
+            return {
+                IsActive: true,
+                Progress: 35,
+                Label: "Preparing viewer",
+            };
+        };
+
+        if (PendingModelPath === SelectedModel.model_url) {
+            const IsSelectedModelLoading = ModelLoadProgress.active && ModelLoadProgress.item === SelectedModel.model_url;
+
+            return {
+                IsActive: true,
+                Progress: IsSelectedModelLoading ? Math.min(ModelLoadProgress.progress, 96) : 18,
+                Label: "Loading 3D model",
+                Detail: SelectedModel.name,
+            };
+        };
+
+        if (SkinLoadState.IsActive) {
+            return SkinLoadState;
+        };
+
+        return EmptyLoadState;
+    }, [Loading, ModelLoadProgress.active, ModelLoadProgress.item, ModelLoadProgress.progress, PendingModelPath, SelectedModel, SelectedSkin, SkinLoadState]);
 
     const TopbarContent = useMemo(() => {
         if (Loading) return null;
@@ -334,7 +584,7 @@ export default function Page() {
         return (
             <>
                 <div className="relative z-35 ml-1 w-full sm:w-60">
-                    <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={(Value: any) => {const Skin = Skins.find((Skin) => Skin.name === Value); if (!Skin) return; setSelectedSkin(Skin); setCustomFile(null); setSearchParams(Previous => {const Parameters = new URLSearchParams(Previous); Parameters.set("skin", Skin.name); return Parameters})}}>
+                    <Combobox items={Skins} value={SelectedSkin?.name || ""} onValueChange={HandleSkinChange}>
                         <ComboboxInput placeholder="Select a skin!" className={"h-full rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}/>
                         <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                             <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -350,7 +600,7 @@ export default function Page() {
                 </div>
 
                 <div className="relative z-35 w-full sm:w-60">
-                    <Combobox items={Models} value={SelectedModel?.name || ""} onValueChange={(Value: any) => {const Model = Models.find((Model) => Model.name === Value); if (!Model) return; setSelectedModel(Model); setSearchParams(Previous => {const Parameters = new URLSearchParams(Previous); Parameters.set("model", Model.name); return Parameters})}}>
+                    <Combobox items={Models} value={SelectedModel?.name || ""} onValueChange={HandleModelChange}>
                         <ComboboxInput placeholder="Select a model!" className={"h-full rounded-sm data-selected:focus:ring-0 hover:border-zinc-600 transition bg-zinc-800 border border-zinc-700 text-white [&_svg]:text-zinc-400"}/>
                         <ComboboxContent className="my-2 bg-zinc-900 border border-zinc-700 rounded-sm z-50 text-gray-200">
                             <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -365,50 +615,54 @@ export default function Page() {
                     </Combobox>
                 </div>
 
-                <label className="flex gap-2 justify-between items-center px-3 py-1 h-10.5 hover:cursor-pointer hover:border-zinc-600 rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
+                <label aria-label="Upload MP4 skin" title="Upload MP4 skin" className="flex gap-2 justify-between items-center px-3 py-1 h-10.5 hover:cursor-pointer hover:border-zinc-600 rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
                     <Upload className="h-5 w-5" />
                     <input type="file" accept="video/mp4" className="hidden" onChange={HandleUpload} />
                 </label>
 
                 <div className="flex gap-2 justify-between items-center">
-                    <button onClick={() => setRotating((Boolean) => !Boolean)} className="px-3 py-1 h-10.5 hover:border-zinc-600 hover:cursor-pointer rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
+                    <button aria-label={Rotating ? "Pause rotation" : "Play rotation"} title={Rotating ? "Pause rotation" : "Play rotation"} onClick={() => setRotating((Boolean) => !Boolean)} className="px-3 py-1 h-10.5 hover:border-zinc-600 hover:cursor-pointer rounded-md bg-zinc-800 border border-zinc-700 text-white hover:bg-zinc-700 transition">
                         {Rotating ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                     </button>
                 </div>
             </>
         );
-    }, [HandleUpload, Loading, Models, Rotating, SelectedModel?.name, SelectedSkin?.name, Skins, setSearchParams]);
+    }, [HandleModelChange, HandleSkinChange, HandleUpload, Loading, Models, Rotating, SelectedModel?.name, SelectedSkin?.name, Skins]);
 
-    useLayoutTopbar(TopbarContent);
+    useLayoutTopbar(TopbarContent, CurrentLoadState.IsActive);
 
     return (
         <>
-            {Loading ? (
-                <div className="flex flex-1 items-center justify-center">
-                    <RefreshCw className="animate-spin h-24 w-24 text-zinc-300"/>
-                </div>
-            ) : (
-                <>
-                    <div className="flex-1 overflow-y-auto p-3 relative">
-                        {SelectedModel?.class_name && (
-                            <div className="absolute bottom-3 left-3 z-40">
-                                <InventoryItem key={SelectedModel.id} path={SelectedModel.type === 1 ? "weapons" : "suits"} weapon={SelectedModel.class_name || ""} skin={SelectedSkin?.image_url} rarity="common"/>
-                            </div>
-                        )}
+            <div className="relative flex min-h-0 flex-1 overflow-hidden">
+                <div className={`absolute inset-0 transition-opacity duration-300 ${CurrentLoadState.IsActive ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+                    {!CurrentLoadState.IsActive && SelectedModel?.class_name && (
+                        <div className="absolute bottom-3 left-3 z-40">
+                            <InventoryItem key={SelectedModel.id} path={SelectedModel.type === 1 ? "weapons" : "suits"} weapon={SelectedModel.class_name || ""} skin={SelectedSkin?.image_url} rarity="common"/>
+                        </div>
+                    )}
 
-                        <Canvas camera={{fov: 40}} frameloop="demand" className="w-full h-full">
+                    {SelectedModel && SelectedSkin && (
+                        <Canvas camera={{fov: 40}} frameloop="demand" className="h-full w-full">
                             <ambientLight intensity={0.6} />
                             <directionalLight position={[5, 5, 5]} />
                             <Suspense fallback={null}>
-                                {SelectedModel && SelectedSkin && <ViewableModel ModelPath={SelectedModel.model_url} Path={CustomFile || SelectedSkin.texture_url} IsRotating={Rotating}/>}
+                                <ViewableModel ModelPath={SelectedModel.model_url} Path={CustomFile || SelectedSkin.texture_url} IsRotating={Rotating} OnModelReady={HandleModelReady} OnSkinLoadChange={HandleSkinLoadChange}/>
                             </Suspense>
                         </Canvas>
-                    </div>
+                    )}
+                </div>
 
-                    <div className="border-t border-zinc-800 bg-zinc-950 p-3 rounded-b-lg">
-                        <div className="flex gap-2 justify-between h-10"></div>
+                {CurrentLoadState.IsActive && (
+                    <div className="absolute inset-0">
+                        <ViewerLoadingScreen State={CurrentLoadState} />
                     </div>
-                </>
+                )}
+            </div>
+
+            {!CurrentLoadState.IsActive && (
+                <div className="border-t border-zinc-800 bg-zinc-950 p-3 rounded-b-lg">
+                    <div className="h-10" />
+                </div>
             )}
         </>
     );
