@@ -651,7 +651,6 @@ export default function Page() {
                     steam_id: Item.steam_id,
                     discord_id: Item.discord_id,
                     image_url: Item.image_url,
-                    texture_url: Item.texture_url,
                     type: Item.type,
                 })).sort((A: SkinObject, B: SkinObject) => SkinOrders[A.type] - SkinOrders[B.type]);
 
@@ -731,7 +730,6 @@ export default function Page() {
             steam_id: "",
             discord_id: "",
             image_url: CustomPreviewUrl || "",
-            texture_url: "",
             type: 7,
         };
     }, [CustomFile, CustomPreviewUrl, CustomSkinName]);
