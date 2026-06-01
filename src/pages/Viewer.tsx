@@ -689,7 +689,7 @@ export default function Page() {
         const SkinParameter = SearchParams.get("skin");
         const NextSkin = Skins.find((Skin) => Skin.name === SkinParameter) || Skins[0];
 
-        PreloadTexture(NextSkin.texture_url);
+        PreloadTexture(NextSkin.image_url);
         setSelectedSkin(NextSkin);
     }, [Skins, SearchParams]);
 
@@ -708,7 +708,7 @@ export default function Page() {
     useEffect(() => {
         if (!SelectedSkin) return;
 
-        const TexturePath = CustomFile || SelectedSkin.texture_url;
+        const TexturePath = CustomFile || SelectedSkin.image_url;
 
         PreloadTexture(TexturePath);
         setSkinLoadState({
@@ -754,14 +754,14 @@ export default function Page() {
 
         const Skin = Skins.find((Skin) => Skin.name === Value);
         if (!Skin) return;
-        if (!CustomFile && SelectedSkin?.texture_url === Skin.texture_url) return;
+        if (!CustomFile && SelectedSkin?.image_url === Skin.image_url) return;
 
-        PreloadTexture(Skin.texture_url);
+        PreloadTexture(Skin.image_url);
         setSkinLoadState({
             IsActive: true,
             Progress: 5,
             Label: "Queueing skin texture",
-            Detail: FormatAssetName(Skin.texture_url),
+            Detail: FormatAssetName(Skin.image_url),
         });
         setSelectedSkin(Skin);
         setCustomFile(null);
@@ -770,7 +770,7 @@ export default function Page() {
             Parameters.set("skin", Skin.name);
             return Parameters;
         });
-    }, [CustomFile, CustomSkinName, SelectedSkin?.texture_url, Skins, setSearchParams]);
+    }, [CustomFile, CustomSkinName, SelectedSkin?.image_url, Skins, setSearchParams]);
 
     const HandleModelChange = useCallback((Value: unknown) => {
         if (typeof Value !== "string") return;
@@ -932,7 +932,7 @@ export default function Page() {
                             <ambientLight intensity={0.6} />
                             <directionalLight position={[5, 5, 5]} />
                             <Suspense fallback={null}>
-                                <ViewableModel ModelPath={SelectedModel.model_url} Path={CustomFile || SelectedSkin.texture_url} IsRotating={Rotating} OnModelReady={HandleModelReady} OnSkinLoadChange={HandleSkinLoadChange}/>
+                                <ViewableModel ModelPath={SelectedModel.model_url} Path={CustomFile || SelectedSkin.image_url} IsRotating={Rotating} OnModelReady={HandleModelReady} OnSkinLoadChange={HandleSkinLoadChange}/>
                             </Suspense>
                         </Canvas>
                     )}
