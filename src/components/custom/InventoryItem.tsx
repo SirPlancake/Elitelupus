@@ -15,6 +15,7 @@ type InventoryItemProps = {
     weapon: string;
     path: string;
     skin?: string;
+    skinType?: "image" | "video";
     rarity?: Rarities;
 };
 
@@ -30,7 +31,7 @@ const RarityStyles: Record<Rarities, string> = {
     custom: "bg-cyan-300",
 };
 
-export default function InventoryItem({weapon, path, skin = "plancake", rarity = "common"}: InventoryItemProps) {
+export default function InventoryItem({weapon, path, skin = "plancake", skinType = "image", rarity = "common"}: InventoryItemProps) {
     const FallbackImage = "/images/770e48c9.png";
     const [ImageSource, setImageSource] = useState<string>(`/images/${path}/${weapon}.png`);
 
@@ -53,7 +54,11 @@ export default function InventoryItem({weapon, path, skin = "plancake", rarity =
             </style>
 
             <div className="w-32 h-32 border-2 border-zinc-800 bg-zinc-700 rounded-lg overflow-hidden relative">
-                {skin && (
+                {skin && skinType === "video" && (
+                    <video src={skin} aria-label="Skin Video" className="absolute inset-0 w-full h-full object-contain z-0" autoPlay loop muted playsInline />
+                )}
+
+                {skin && skinType === "image" && (
                     <img src={`${skin}`} alt="Skin Image" className="absolute inset-0 w-full h-full object-contain z-0"/>
                 )}
 

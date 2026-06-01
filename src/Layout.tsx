@@ -48,17 +48,15 @@ export default function Layout() {
           )}
 
           <main className="relative flex min-h-0 flex-1 flex-col rounded-lg border border-zinc-800/75 bg-zinc-900/75 overflow-hidden">
-            {!TopbarHidden && (
-              <div className="border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg min-h-20 flex flex-wrap items-center gap-3">
-                <div className="min-w-0 flex flex-1 flex-wrap items-center gap-3">
-                  {TopbarContent}
-                </div>
-
-                <div className="ml-auto mr-1 shrink-0">
-                  <OnlineUsers/>
-                </div>
+            <div className={`border-b border-zinc-800 bg-zinc-950 p-3 rounded-t-lg min-h-20 flex-wrap items-center gap-3 ${TopbarHidden ? "hidden" : "flex"}`}>
+              <div className="min-w-0 flex flex-1 flex-wrap items-center gap-3">
+                {TopbarContent}
               </div>
-            )}
+
+              <div className="ml-auto mr-1 shrink-0">
+                <OnlineUsers/>
+              </div>
+            </div>
 
             <div className="flex min-h-0 flex-1 flex-col">
               <Outlet/>
