@@ -5,6 +5,7 @@ export type SkinObject = {
   steam_id: string;
   discord_id: string;
   image_url: string;
+  created_at: number | null;
   type: number;
 };
 
