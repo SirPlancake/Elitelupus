@@ -1,27 +1,30 @@
-import {StrictMode} from "react";
-import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
-import ReactDOM from "react-dom/client";
+import * as React from "react";
+import * as ReactRouter from "react-router-dom";
+import * as ReactDOM from "react-dom/client";
 
 import Layout from "./Layout.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import Gallery from "./pages/Gallery.tsx";
-import Viewer from "./pages/Viewer.tsx";
-import Lookup from "./pages/Lookup.tsx";
+import OverviewPage from "@/pages/dashboard/OverviewPage.tsx";
+import StaffRosterPage from "@/pages/dashboard/StaffRosterPage.tsx";
+import GalleryPage from "@/pages/cosmetic/GalleryPage.tsx";
+import ModelViewerPage from "@/pages/cosmetic/ModelViewerPage.tsx";
+import SteamLookupPage from "@/pages/miscellaneous/SteamLookupPage.tsx";
+import NotFoundPage from "@/pages/NotFoundPage.tsx";
 
-import "./assets/styles.css";
+import "./assets/Styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout/>}>
-          <Route path="/" element={<Dashboard/>}/>
-          <Route path="/gallery" element={<Gallery/>}/>
-          <Route path="/viewer" element={<Viewer/>}/>
-          <Route path="/lookup" element={<Lookup/>}/>
-          <Route path="*" element={<Navigate to="/" replace/>}/>
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>
+    <React.StrictMode>
+        <ReactRouter.BrowserRouter>
+            <ReactRouter.Routes>
+                <ReactRouter.Route element={<Layout/>}>
+                    <ReactRouter.Route path="/" element={<OverviewPage/>}/>
+                    <ReactRouter.Route path="/staff-roster" element={<StaffRosterPage/>}/>
+                    <ReactRouter.Route path="/gallery" element={<GalleryPage/>}/>
+                    <ReactRouter.Route path="/model-viewer" element={<ModelViewerPage/>}/>
+                    <ReactRouter.Route path="/steam-lookup" element={<SteamLookupPage/>}/>
+                    <ReactRouter.Route path="*" element={<NotFoundPage/>}/>
+                </ReactRouter.Route>
+            </ReactRouter.Routes>
+        </ReactRouter.BrowserRouter>
+    </React.StrictMode>
 );
