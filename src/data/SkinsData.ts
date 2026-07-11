@@ -649,4 +649,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.UNCOMMON,
         created_at: 1781644040,
     },
+    {
+        name: "Neon",
+        internal_id: "Neon",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "neon.gif",
+        type: SkinsType.SkinsRarity.UNCOMMON,
+        created_at: 1783774473,
+    },
 ];
