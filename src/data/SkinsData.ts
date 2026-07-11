@@ -658,4 +658,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.UNCOMMON,
         created_at: 1783774473,
     },
+    {
+        name: "Cosmic Burst",
+        internal_id: "Cosmic Burst",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "cosmic-burst.gif",
+        type: SkinsType.SkinsRarity.EPIC,
+        created_at: 1783774613,
+    },
 ];
