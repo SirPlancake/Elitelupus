@@ -667,4 +667,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.EPIC,
         created_at: 1783774613,
     },
+    {
+        name: "Pufferfish",
+        internal_id: "Pufferfish",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "pufferfish.gif",
+        type: SkinsType.SkinsRarity.RARE,
+        created_at: 1783774724,
+    },
 ];
