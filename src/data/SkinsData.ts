@@ -676,4 +676,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.RARE,
         created_at: 1783774724,
     },
+    {
+        name: "PREmium",
+        internal_id: "PREmium",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "premium.gif",
+        type: SkinsType.SkinsRarity.COMMON,
+        created_at: 1783775035,
+    },
 ];
