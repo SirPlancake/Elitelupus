@@ -685,4 +685,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.COMMON,
         created_at: 1783775035,
     },
+    {
+        name: "Drip",
+        internal_id: "Drip",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "drip.gif",
+        type: SkinsType.SkinsRarity.EPIC,
+        created_at: 1784916275,
+    },
 ];
