@@ -694,4 +694,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.EPIC,
         created_at: 1784916275,
     },
+    {
+        name: "Rainbow Wave",
+        internal_id: "Rainbow Wave",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "rainbow-wave.gif",
+        type: SkinsType.SkinsRarity.EPIC,
+        created_at: 1784916341,
+    },
 ];
