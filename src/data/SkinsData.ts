@@ -703,4 +703,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.EPIC,
         created_at: 1784916341,
     },
+    {
+        name: "Plasma (Blue)",
+        internal_id: "Plasma BE",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "plasma-blue.gif",
+        type: SkinsType.SkinsRarity.UNATTAINABLE,
+        created_at: 1777376640,
+    },
 ];
