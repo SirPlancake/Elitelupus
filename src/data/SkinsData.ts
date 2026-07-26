@@ -721,4 +721,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.UNATTAINABLE,
         created_at: 1785085516,
     },
+    {
+        name: "Plasma (Black)",
+        internal_id: "Plasma BK",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "plasma-black.gif",
+        type: SkinsType.SkinsRarity.UNATTAINABLE,
+        created_at: 1785085540,
+    },
 ];
