@@ -721,4 +721,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.UNATTAINABLE,
         created_at: 1785085572,
     },
+    {
+        name: "Chapter",
+        internal_id: "Chapter",
+        steam_id: "76561199636922627",
+        discord_id: "857693326776729631",
+        file_path: "chapter.gif",
+        type: SkinsType.SkinsRarity.USER,
+        created_at: 1785322093,
+    },
 ];
