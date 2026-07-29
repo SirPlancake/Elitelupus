@@ -41,8 +41,14 @@ function CopyField({Label, Value}: {Label: string; Value: string | null}) {
             <div className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 text-zinc-500">
                     {Label === "Steam" ? (
-                        <ReactIcons.FaSteam className="h-4 w-4"/>) : (<ReactIcons.FaDiscord className="h-4 w-4"/>
-                    )}
+                        <ReactIcons.FaSteam className="h-4 w-4" />
+                    ) : Label === "Discord" ? (
+                        <ReactIcons.FaDiscord className="h-4 w-4" />
+                    ) : Label === "Internal ID" ? (
+                        <ReactIcons.FaIdBadge className="h-4 w-4" />
+                    ) : Label === "Name" ? (
+                        <ReactIcons.FaUser className="h-4 w-4" />
+                    ) : null}
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -138,35 +144,33 @@ function SkinCard({Skin}: {Skin: SkinsType.SkinsObject}) {
     const Rarity = GetRarity(Skin.type);
 
     return (
-        <article className="flex min-h-90 flex-col overflow-hidden rounded-lg border border-zinc-800/75 bg-zinc-900/60 p-2 shadow-md xl:h-full xl:min-h-0">
+        <article className="flex min-h-90 flex-col overflow-hidden rounded-lg border border-zinc-800/75 bg-zinc-900 p-2 shadow-md xl:h-full xl:min-h-0">
             <div className="relative aspect-square overflow-hidden rounded-md border-b border-zinc-800 bg-zinc-950">
-                <SpinnerComponent.Image src={`/images/skins/${Skin.file_path}`} alt={Skin.name} className="h-full w-full"/>
+                <SpinnerComponent.Image src={`/images/skins/${Skin.file_path}`} alt={Skin.name} className="h-full w-full object-cover"/>
 
                 <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-linear-to-b from-black/90 via-black/45 to-transparent"/>
 
-                <div className="absolute left-2 top-2 z-20">
-                    <span className={`inline-flex h-6 items-center gap-1.5 rounded-sm border px-2 text-[9px] font-black uppercase tracking-[0.14em] ${Rarity.class}`}>
+                <div className="absolute inset-x-2.5 top-2.5 p-1 z-20 flex items-center justify-between">
+                    <span className={`inline-flex h-6 items-center rounded-sm border px-2 text-[9px] font-black uppercase tracking-[0.14em] ${Rarity.class}`}>
                         {Rarity.name}
                     </span>
+
+                    <div className="flex items-center gap-2">
+                        <ReactRouter.Link to={`/model-viewer?skin=${encodeURIComponent(Skin.name)}`} title="Open Model Viewer" className="flex h-6 w-6 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800/40 text-zinc-300 transition-colors hover:bg-zinc-700/60 hover:text-white">
+                            <Lucide.ExternalLink className="h-3.5 w-3.5" />
+                        </ReactRouter.Link>
+
+                        <span className="inline-flex h-6 items-center rounded-sm border border-zinc-700 bg-zinc-800/40 px-2 text-[9px] font-black uppercase tracking-[0.14em] text-zinc-300">
+                            {Skin.created_at !== null ? new Date(Skin.created_at * 1000).toLocaleString() : "No Date"}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <div className="shrink-0 pt-2">
-                <div className="min-w-0 pl-1 flex">
-                <h2 className="truncate text-sm font-bold leading-tight text-white">
-                    {Skin.name}
-
-                    <p className="mt-0.5 truncate text-[10px] text-zinc-500">
-                        {Skin.internal_id} - {Skin.created_at !== null ? new Date(Skin.created_at * 1000).toLocaleString(): "Unavailable"}
-                    </p>
-                </h2>
-
-                <ReactRouter.Link to={`/model-viewer?skin=${encodeURIComponent(Skin.name)}`} className="ml-1 p-2 transition flex items-center text-zinc-400 hover:text-white" title="Open Model Viewer">
-                    <Lucide.ExternalLink className="h-4 w-4" />
-                </ReactRouter.Link>
-            </div>
-
                 <div className="mt-2 grid gap-2">
+                    <CopyField Label="Name" Value={Skin.name}/>
+                    <CopyField Label="Internal ID" Value={Skin.internal_id}/>
                     <CopyField Label="Steam" Value={Skin.steam_id}/>
                     <CopyField Label="Discord" Value={Skin.discord_id}/>
                 </div>
