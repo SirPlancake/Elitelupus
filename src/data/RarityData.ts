@@ -15,7 +15,7 @@ export const RarityStyles: RarityType.RarityObject[] = [
     {
         name: "User",
         value: SkinsType.SkinsRarity.USER,
-        class: "border-yellow-700 bg-yellow-800/70 text-yellow-400",
+        class: "border-pink-500 bg-pink-600/40 text-pink-200",
     },
     {
         name: "Unattainable",
