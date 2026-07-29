@@ -1,12 +1,13 @@
 export const SkinsRarity = {
     MANAGEMENT: 0,
     ADMIN: 1,
-    UNATTAINABLE: 2,
-    EPIC: 3,
-    RARE: 4,
-    UNCOMMON: 5,
-    COMMON: 6,
-    UNCATEGORIZED: 7
+    USER: 2,
+    UNATTAINABLE: 3,
+    EPIC: 4,
+    RARE: 5,
+    UNCOMMON: 6,
+    COMMON: 7,
+    UNCATEGORIZED: 8
 };
 
 export type SkinsRarity = typeof SkinsRarity[keyof typeof SkinsRarity];
