@@ -40,11 +40,7 @@ function CopyField({Label, Value}: {Label: string; Value: string | null}) {
             className={`flex h-12 w-full min-w-0 overflow-hidden rounded-md border ${HasValue ? "border-zinc-800 bg-zinc-950/55 text-zinc-300" : "border-dashed border-zinc-800/60 bg-zinc-950/30 text-zinc-600"}`}>
             <div className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 text-zinc-500">
-                    {Label === "Steam" ? (
-                        <ReactIcons.FaSteam className="h-4 w-4" />
-                    ) : Label === "Discord" ? (
-                        <ReactIcons.FaDiscord className="h-4 w-4" />
-                    ) : Label === "Internal ID" ? (
+                    {Label === "Internal ID" ? (
                         <ReactIcons.FaIdBadge className="h-4 w-4" />
                     ) : Label === "Name" ? (
                         <ReactIcons.FaUser className="h-4 w-4" />
@@ -171,8 +167,6 @@ function SkinCard({Skin}: {Skin: SkinsType.SkinsObject}) {
                 <div className="mt-2 grid gap-2">
                     <CopyField Label="Name" Value={Skin.name}/>
                     <CopyField Label="Internal ID" Value={Skin.internal_id}/>
-                    <CopyField Label="Steam" Value={Skin.steam_id}/>
-                    <CopyField Label="Discord" Value={Skin.discord_id}/>
                 </div>
             </div>
         </article>
