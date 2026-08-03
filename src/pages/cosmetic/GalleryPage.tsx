@@ -200,8 +200,6 @@ function SkinModal({Skin, Closing, OnClose}: {Skin: SkinsType.SkinsObject; Closi
 };
 
 function SkinCard({Skin, OnClick}: {Skin: SkinsType.SkinsObject; OnClick: () => void}) {
-    const Rarity = GetRarity(Skin.type);
-
     return (
         <article className="group relative flex min-h-0 flex-col overflow-hidden rounded-lg border border-zinc-800/75 bg-zinc-900 shadow-md xl:h-full">
             <button type="button" onClick={OnClick} title={`View Details: ${Skin.name}`} className="relative flex aspect-square flex-none cursor-pointer items-center justify-center overflow-hidden bg-zinc-950 text-left xl:aspect-auto xl:h-full xl:min-h-0 xl:flex-1">
