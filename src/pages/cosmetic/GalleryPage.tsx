@@ -209,12 +209,6 @@ function SkinCard({Skin, OnClick}: {Skin: SkinsType.SkinsObject; OnClick: () => 
 
                     <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-linear-to-b from-black/90 via-black/45 to-transparent"/>
 
-                    <div className="absolute inset-x-1.5 top-1.5 z-20 flex items-center justify-between gap-2">
-                        <span className={`inline-flex h-6 items-center rounded-sm border px-2 text-[9px] font-black uppercase tracking-[0.14em] ${Rarity.class}`}>
-                            {Rarity.name}
-                        </span>
-                    </div>
-
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-linear-to-t from-black/95 via-black/50 to-transparent"/>
 
                     <div className="absolute inset-x-2.5 bottom-2 z-20 min-w-0">
