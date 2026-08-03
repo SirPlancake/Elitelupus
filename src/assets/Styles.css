@@ -34,4 +34,29 @@
     .custom-scrollbar::-webkit-scrollbar-corner {
         background: transparent;
     }
+
+    .animate-modal-backdrop-in { animation: modal-backdrop-in 200ms ease-out both; }
+    .animate-modal-panel-in { animation: modal-panel-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .animate-modal-backdrop-out { animation: modal-backdrop-out 120ms ease-in both; }
+    .animate-modal-panel-out { animation: modal-panel-out 120ms ease-in both; }
+}
+
+@keyframes modal-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-panel-in {
+    from { opacity: 0; transform: scale(0.95) translateY(12px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modal-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes modal-panel-out {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to { opacity: 0; transform: scale(0.96) translateY(8px); }
 }

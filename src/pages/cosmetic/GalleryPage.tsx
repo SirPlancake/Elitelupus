@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactRouter from "react-router-dom";
-import * as ReactIcons from "react-icons/fa";
 import * as Lucide from "lucide-react";
 import * as SkinsData from "@/data/SkinsData.ts";
 import * as RarityData from "@/data/RarityData.ts";
@@ -8,64 +7,10 @@ import * as SkinsType from "@/types/SkinsType.tsx";
 import * as SpinnerComponent from "@/components/SpinnerComponent.tsx";
 import type {LayoutOutletContext} from "@/Layout.tsx";
 
-const SKINS_PER_PAGE = 8;
+const SKINS_PER_PAGE = 12;
 
 function GetRarity(Type: SkinsType.SkinsRarity) {
     return RarityData.RarityStyles.find((Rarity) => Rarity.value === Type) ?? RarityData.RarityStyles[RarityData.RarityStyles.length - 1];
-};
-
-function CopyField({Label, Value}: {Label: string; Value: string | null}) {
-    const [Copied, SetCopied] = React.useState(false);
-
-    const CopyValue = Value ?? "";
-    const HasValue = CopyValue !== "N/A" && CopyValue.trim() !== "";
-
-    async function Copy() {
-        if (!HasValue) return;
-
-        try {
-            await navigator.clipboard.writeText(CopyValue);
-            SetCopied(true);
-
-            window.setTimeout(() => {
-                SetCopied(false);
-            }, 1200);
-        } catch {
-            SetCopied(false);
-        };
-    };
-
-    return (
-        <div
-            className={`flex h-12 w-full min-w-0 overflow-hidden rounded-md border ${HasValue ? "border-zinc-800 bg-zinc-950/55 text-zinc-300" : "border-dashed border-zinc-800/60 bg-zinc-950/30 text-zinc-600"}`}>
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border border-zinc-800 bg-zinc-900 text-zinc-500">
-                    {Label === "Internal ID" ? (
-                        <ReactIcons.FaIdBadge className="h-4 w-4" />
-                    ) : Label === "Name" ? (
-                        <ReactIcons.FaUser className="h-4 w-4" />
-                    ) : null}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                    <div className="text-[9px] font-black uppercase leading-none tracking-[0.16em] text-zinc-500">
-                        {Label}
-                    </div>
-
-                    <div className="mt-1 truncate font-mono text-[11px] leading-none text-zinc-300">
-                        {HasValue ? CopyValue : "Unavailable"}
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" onClick={Copy} disabled={!HasValue} title={HasValue ? `Copy ${Label}` : `${Label} is unavailable`} className={`flex h-full w-12 shrink-0 items-center justify-center border-l transition ${HasValue ? "cursor-pointer border-zinc-800 bg-zinc-950/70 text-zinc-500 hover:bg-white/10 hover:text-white" : "cursor-not-allowed border-zinc-800/60 bg-zinc-950/40 text-zinc-700"}`}>
-                {HasValue ? (Copied ? (
-                    <Lucide.Check className="h-4 w-4 text-green-400"/>) : (<Lucide.Copy className="h-4 w-4"/>
-                    )) : (<Lucide.Minus className="h-4 w-4"/>)
-                }
-            </button>
-        </div>
-    );
 };
 
 function FilterDropdown({SelectedRarity, SetSelectedRarity}: {SelectedRarity: SkinsType.SkinsRarity | null; SetSelectedRarity: React.Dispatch<React.SetStateAction<SkinsType.SkinsRarity | null>>}) {
@@ -90,85 +35,194 @@ function FilterDropdown({SelectedRarity, SetSelectedRarity}: {SelectedRarity: Sk
 
     return (
         <div ref={DropdownRef} className="relative w-full md:w-auto">
-            <button type="button" onClick={() => SetOpen((Value) => !Value)} className={`inline-flex h-12 w-full cursor-pointer items-center gap-2 overflow-hidden rounded-md border border-zinc-800 bg-zinc-900 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900/90 md:w-52 ${Open ? "border-zinc-700 bg-zinc-950" : ""}`}>
-                <div className="flex h-full w-12 shrink-0 items-center justify-center border-r border-zinc-800 bg-zinc-950/60 text-zinc-500">
-                    <Lucide.Filter className="h-4 w-4"/>
-                </div>
-
-                <span className="min-w-0 flex-1 truncate px-1 text-left">
+            <button type="button" onClick={() => SetOpen((Value) => !Value)} className={`flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm font-semibold transition md:w-52 ${Open ? "border-zinc-700 bg-zinc-950 text-white" : "text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/90"}`}>
+                <span className="min-w-0 truncate">
                     {Selected ? Selected.name : "None"}
                 </span>
 
-                <Lucide.ChevronDown className={`mr-3 h-4 w-4 shrink-0 text-zinc-500 transition ${Open ? "rotate-180 text-zinc-300" : ""}`}/>
+                <Lucide.ChevronDown className={`h-4 w-4 shrink-0 text-zinc-500 transition ${Open ? "rotate-180 text-zinc-300" : ""}`}/>
             </button>
 
             {Open && (
-                <div className="absolute right-0 z-30 mt-2 w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 shadow-2xl md:w-60">
-                    <div className="p-1.5">
-                        <button type="button" onClick={() => {SetSelectedRarity(null); SetOpen(false)}}
-                            className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm font-semibold transition ${SelectedRarity === null ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-900 hover:text-white"}`}>
-                            <span className="flex h-2.5 w-2.5 shrink-0 rounded-full border border-zinc-500/60 bg-zinc-500/10"/>
+                <div className="absolute right-0 z-30 mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 p-1.5 shadow-2xl shadow-black/50 md:w-60">
+                    <button type="button" onClick={() => {SetSelectedRarity(null); SetOpen(false)}}
+                        className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${SelectedRarity === null ? "bg-zinc-800 font-medium text-white" : "text-zinc-400 hover:bg-zinc-900"}`}>
+                        <span className="flex h-2.5 w-2.5 shrink-0 rounded-full border border-zinc-500/60 bg-zinc-500/10"/>
 
-                            <span className="min-w-0 flex-1 truncate">
+                        <span className="min-w-0 flex-1">
+                            <span className="block truncate">
                                 None
                             </span>
 
-                            {SelectedRarity === null && <Lucide.Check className="h-4 w-4 shrink-0 text-zinc-300"/>}
-                        </button>
+                            <span className="block truncate text-[10px] text-zinc-500">
+                                {SkinsData.Skins.length} skin{SkinsData.Skins.length === 1 ? "" : "s"}
+                            </span>
+                        </span>
 
-                        <div className="my-1.5 border-t border-zinc-800"/>
+                        {SelectedRarity === null && <Lucide.Check className="h-4 w-4 shrink-0 text-indigo-400"/>}
+                    </button>
 
-                        {RarityData.RarityStyles.map((Rarity) => (
-                            <button key={Rarity.name} type="button" onClick={() => {SetSelectedRarity(Rarity.value); SetOpen(false)}} className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm font-semibold transition ${SelectedRarity === Rarity.value ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-900 hover:text-white"}`}>
+                    {RarityData.RarityStyles.filter((Rarity) => Rarity.value !== SkinsType.SkinsRarity.UNCATEGORIZED).map((Rarity) => {
+                        const IsSelected = SelectedRarity === Rarity.value;
+                        const SkinCount = SkinsData.Skins.filter((Skin) => Skin.type === Rarity.value).length;
+
+                        return (
+                            <button key={Rarity.name} type="button" onClick={() => {SetSelectedRarity(Rarity.value); SetOpen(false)}} className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${IsSelected ? "bg-zinc-800 font-medium text-white" : "text-zinc-400 hover:bg-zinc-900"}`}>
                                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full border ${Rarity.class}`}/>
 
-                                <span className="min-w-0 flex-1 truncate">
-                                    {Rarity.name}
+                                <span className="min-w-0 flex-1">
+                                    <span className="block truncate">
+                                        {Rarity.name}
+                                    </span>
+
+                                    <span className="block truncate text-[10px] text-zinc-500">
+                                        {SkinCount} skin{SkinCount === 1 ? "" : "s"}
+                                    </span>
                                 </span>
 
-                                {SelectedRarity === Rarity.value && <Lucide.Check className="h-4 w-4 shrink-0 text-zinc-300"/>}
+                                {IsSelected && <Lucide.Check className="h-4 w-4 shrink-0 text-indigo-400"/>}
                             </button>
-                        ))}
-                    </div>
+                        );
+                    })}
                 </div>
             )}
         </div>
     );
 };
 
-function SkinCard({Skin}: {Skin: SkinsType.SkinsObject}) {
+function SkinModal({Skin, Closing, OnClose}: {Skin: SkinsType.SkinsObject; Closing: boolean; OnClose: () => void}) {
+    const Rarity = GetRarity(Skin.type);
+    const [CopiedField, SetCopiedField] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        function HandleKey(Event: KeyboardEvent) {
+            if (Event.key === "Escape") {
+                OnClose();
+            };
+        };
+
+        document.addEventListener("keydown", HandleKey);
+
+        return () => {
+            document.removeEventListener("keydown", HandleKey);
+        };
+    }, [OnClose]);
+
+    const SteamID = ["", "N/A"].includes(Skin.steam_id.trim()) ? "N/A" : Skin.steam_id;
+    const DiscordID = Skin.discord_id === null ? "N/A" : Skin.discord_id;
+
+    const Rows = [
+        {Label: "Rarity", Value: Rarity.name},
+        {Label: "Internal ID", Value: Skin.internal_id},
+        {Label: "Steam ID", Value: SteamID},
+        {Label: "Discord ID", Value: DiscordID},
+        {Label: "File Path", Value: Skin.file_path},
+        {Label: "Created", Value: Skin.created_at !== null ? new Date(Skin.created_at * 1000).toLocaleString() : "N/A"},
+    ];
+
+    async function CopyValue(Label: string, Value: string) {
+        try {
+            await navigator.clipboard.writeText(Value);
+            SetCopiedField(Label);
+
+            window.setTimeout(() => {
+                SetCopiedField(null);
+            }, 1200);
+        } catch {
+            SetCopiedField(null);
+        };
+    };
+
+    return (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+            <div className={`fixed inset-0 bg-black/70 backdrop-blur-sm ${Closing ? "animate-modal-backdrop-out" : "animate-modal-backdrop-in"}`} onClick={OnClose}/>
+
+            <div className={`relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/50 ${Closing ? "animate-modal-panel-out" : "animate-modal-panel-in"}`}>
+                <div className="flex shrink-0 items-center justify-between gap-4 border-b border-zinc-800/75 px-6 py-5">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">
+                                Skin Details
+                            </span>
+                        </div>
+
+                        <h2 className="mt-1.5 truncate text-lg font-bold tracking-tight text-white">
+                            {Skin.name}
+                        </h2>
+                    </div>
+
+                    <button type="button" onClick={OnClose} title="Close" className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/10 hover:text-white">
+                        <Lucide.X className="h-5 w-5"/>
+                    </button>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar p-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="relative flex min-h-48 items-center justify-center overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 sm:h-full sm:min-h-0">
+                            <SpinnerComponent.Image src={`/images/skins/${Skin.file_path}`} alt={Skin.name} className="h-full w-full"/>
+                        </div>
+
+                        <div className="flex min-w-0 flex-col gap-2.5">
+                            {Rows.map(({Label, Value}) => {
+                                const IsCopied = CopiedField === Label;
+
+                                return (
+                                    <div key={Label} className="flex items-center gap-2 rounded-lg border border-zinc-800/75 bg-zinc-900/60 px-3 py-2">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[9px] font-black uppercase tracking-[0.16em] text-zinc-500">
+                                                {Label}
+                                            </div>
+
+                                            <div className="mt-1 truncate font-mono text-sm text-zinc-200">
+                                                {Value}
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onClick={() => CopyValue(Label, Value)} title={`Copy ${Label}`} className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-500 transition hover:bg-white/10 hover:text-white">
+                                            {IsCopied ? <Lucide.Check className="h-3.5 w-3.5 text-green-400"/> : <Lucide.Copy className="h-3.5 w-3.5"/>}
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex shrink-0 gap-2 border-t border-zinc-800/75 px-4 py-4">
+                    <ReactRouter.Link to={`/model-viewer?skin=${encodeURIComponent(Skin.name)}`} onClick={OnClose} className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-md bg-indigo-500 text-sm font-semibold text-white transition hover:bg-indigo-400">
+                        <Lucide.ExternalLink className="h-4 w-4"/>
+                        Open Model Viewer
+                    </ReactRouter.Link>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+function SkinCard({Skin, OnClick}: {Skin: SkinsType.SkinsObject; OnClick: () => void}) {
     const Rarity = GetRarity(Skin.type);
 
     return (
-        <article className="flex min-h-90 flex-col overflow-hidden rounded-lg border border-zinc-800/75 bg-zinc-900 p-2 shadow-md xl:h-full xl:min-h-0">
-            <div className="relative aspect-square overflow-hidden rounded-md border-b border-zinc-800 bg-zinc-950">
-                <SpinnerComponent.Image src={`/images/skins/${Skin.file_path}`} alt={Skin.name} className="h-full w-full object-cover"/>
+        <article className="group relative flex min-h-0 flex-col overflow-hidden rounded-lg border border-zinc-800/75 bg-zinc-900 shadow-md xl:h-full">
+            <button type="button" onClick={OnClick} title={`View Details: ${Skin.name}`} className="relative flex aspect-square flex-none cursor-pointer items-center justify-center overflow-hidden bg-zinc-950 text-left xl:aspect-auto xl:h-full xl:min-h-0 xl:flex-1">
+                <SpinnerComponent.Image src={`/images/skins/${Skin.file_path}`} alt={Skin.name} className="h-full w-full transition duration-300 group-hover:scale-105"/>
 
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-linear-to-b from-black/90 via-black/45 to-transparent"/>
+                    <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-linear-to-b from-black/90 via-black/45 to-transparent"/>
 
-                <div className="absolute inset-x-2.5 top-2.5 p-1 z-20 flex items-center justify-between">
-                    <span className={`inline-flex h-6 items-center rounded-sm border px-2 text-[9px] font-black uppercase tracking-[0.14em] ${Rarity.class}`}>
-                        {Rarity.name}
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                        <ReactRouter.Link to={`/model-viewer?skin=${encodeURIComponent(Skin.name)}`} title="Open Model Viewer" className="flex h-6 w-6 items-center justify-center rounded-sm border border-zinc-700 bg-zinc-800/40 text-zinc-300 transition-colors hover:bg-zinc-700/60 hover:text-white">
-                            <Lucide.ExternalLink className="h-3.5 w-3.5" />
-                        </ReactRouter.Link>
-
-                        <span className="inline-flex h-6 items-center rounded-sm border border-zinc-700 bg-zinc-800/40 px-2 text-[9px] font-black uppercase tracking-[0.14em] text-zinc-300">
-                            {Skin.created_at !== null ? new Date(Skin.created_at * 1000).toLocaleString() : "No Date"}
+                    <div className="absolute inset-x-1.5 top-1.5 z-20 flex items-center justify-between gap-2">
+                        <span className={`inline-flex h-6 items-center rounded-sm border px-2 text-[9px] font-black uppercase tracking-[0.14em] ${Rarity.class}`}>
+                            {Rarity.name}
                         </span>
                     </div>
-                </div>
-            </div>
 
-            <div className="shrink-0 pt-2">
-                <div className="mt-2 grid gap-2">
-                    <CopyField Label="Name" Value={Skin.name}/>
-                    <CopyField Label="Internal ID" Value={Skin.internal_id}/>
-                </div>
-            </div>
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-linear-to-t from-black/95 via-black/50 to-transparent"/>
+
+                    <div className="absolute inset-x-2.5 bottom-2 z-20 min-w-0">
+                        <span className="block truncate text-sm font-bold text-white drop-shadow">
+                            {Skin.name}
+                        </span>
+                    </div>
+            </button>
         </article>
     );
 };
@@ -177,6 +231,24 @@ export default function Page() {
     const [Search, SetSearch] = React.useState("");
     const [Page, SetPage] = React.useState(1);
     const [SelectedRarity, SetSelectedRarity] = React.useState<SkinsType.SkinsRarity | null>(null);
+    const [SelectedSkin, SetSelectedSkin] = React.useState<SkinsType.SkinsObject | null>(null);
+    const [ModalClosing, SetModalClosing] = React.useState(false);
+
+    const OpenModal = (Skin: SkinsType.SkinsObject) => {
+        SetModalClosing(false);
+        SetSelectedSkin(Skin);
+    };
+
+    const CloseModal = () => {
+        if (!SelectedSkin || ModalClosing) return;
+
+        SetModalClosing(true);
+
+        window.setTimeout(() => {
+            SetSelectedSkin(null);
+            SetModalClosing(false);
+        }, 130);
+    };
 
     const {SetTopbarContent, SetFooterContent} = ReactRouter.useOutletContext<LayoutOutletContext>();
 
@@ -220,39 +292,44 @@ export default function Page() {
     React.useEffect(() => {
         SetFooterContent(
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex w-full items-center justify-center gap-2 whitespace-nowrap text-sm text-gray-400 sm:w-auto sm:justify-start sm:pl-2">
-                    <span className="text-zinc-400">Showing</span>
+                <div className="flex w-full items-center justify-center sm:w-auto sm:justify-start">
+                    <div className="flex items-center gap-2 rounded-md border border-zinc-800/75 bg-zinc-950/50 px-3 py-2 text-sm whitespace-nowrap">
+                        <span className="text-white/40">Showing</span>
 
-                    <span className="font-mono text-gray-300">
-                        {StartIndex}
-                    </span>
+                        <span className="font-mono font-semibold text-white">
+                            {StartIndex}
+                        </span>
 
-                    <span className="text-zinc-600">-</span>
+                        <span className="text-white/30">-</span>
 
-                    <span className="font-mono text-gray-300">
-                        {Math.min(StartIndex + SKINS_PER_PAGE, FilteredSkins.length)}
-                    </span>
+                        <span className="font-mono font-semibold text-white">
+                            {Math.min(StartIndex + SKINS_PER_PAGE, FilteredSkins.length)}
+                        </span>
 
-                    <span className="text-zinc-400">of</span>
+                        <span className="text-white/30">of</span>
 
-                    <span className="font-mono text-gray-300">
-                        {FilteredSkins.length}
-                    </span>
+                        <span className="font-mono font-semibold text-white">
+                            {FilteredSkins.length}
+                        </span>
 
-                    <span className="text-zinc-400">results.</span>
+                        <span className="text-white/40">results</span>
+                    </div>
                 </div>
 
-                <div className="flex h-10 w-full overflow-hidden rounded-md border border-zinc-800 bg-zinc-900 sm:w-auto">
-                    <button type="button" disabled={Page <= 1} onClick={() => SetPage((Value) => Math.max(1, Value - 1))} className="grid h-10 flex-1 cursor-pointer place-items-center border-r border-zinc-800 bg-zinc-950/60 text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:text-white/20 disabled:hover:bg-transparent sm:w-10 sm:flex-none" title="Previous Page">
-                        <Lucide.ChevronLeft className="h-5 w-5 translate-x-px"/>
+                <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+                    <button type="button" disabled={Page <= 1} onClick={() => SetPage((Value) => Math.max(1, Value - 1))} className="grid h-9 w-9 cursor-pointer place-items-center rounded-md border border-zinc-800 bg-zinc-900 text-white/70 transition hover:border-white/10 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-800 disabled:hover:bg-zinc-900 disabled:hover:text-white/70" title="Previous Page">
+                        <Lucide.ChevronLeft className="h-4 w-4"/>
                     </button>
 
-                    <div className="flex h-10 min-w-24 items-center justify-center border-r border-zinc-800 px-3 text-xs font-semibold text-white/80">
-                        {Page} / {TotalPages}
+                    <div className="flex h-9 items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-950/50 px-4 text-sm">
+                        <span className="font-medium text-white/40">Page</span>
+                        <span className="font-mono font-semibold text-white">{Page}</span>
+                        <span className="text-white/25">/</span>
+                        <span className="font-mono text-white/60">{TotalPages}</span>
                     </div>
 
-                    <button type="button" disabled={Page >= TotalPages} onClick={() => SetPage((Value) => Math.min(TotalPages, Value + 1))} className="grid h-10 flex-1 cursor-pointer place-items-center bg-zinc-950/60 text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:text-white/20 disabled:hover:bg-transparent sm:w-10 sm:flex-none" title="Next Page">
-                        <Lucide.ChevronRight className="h-5 w-5 -translate-x-px"/>
+                    <button type="button" disabled={Page >= TotalPages} onClick={() => SetPage((Value) => Math.min(TotalPages, Value + 1))} className="grid h-9 w-9 cursor-pointer place-items-center rounded-md border border-zinc-800 bg-zinc-900 text-white/70 transition hover:border-white/10 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-800 disabled:hover:bg-zinc-900 disabled:hover:text-white/70" title="Next Page">
+                        <Lucide.ChevronRight className="h-4 w-4"/>
                     </button>
                 </div>
             </div>
@@ -264,11 +341,12 @@ export default function Page() {
     }, [SetFooterContent, FilteredSkins.length, StartIndex, Page, TotalPages]);
 
     return (
+        <>
         <main className="h-full min-h-0 w-full overflow-y-auto text-white custom-scrollbar xl:overflow-hidden">
             {VisibleSkins.length > 0 ? (
-                <div className="grid min-h-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-cols-4 xl:grid-rows-2">
+                <div className="grid min-h-full grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-cols-4 xl:grid-rows-3">
                     {VisibleSkins.map((Skin) => (
-                        <SkinCard key={`${Skin.internal_id}-${Skin.file_path}`} Skin={Skin}/>
+                        <SkinCard key={`${Skin.internal_id}-${Skin.file_path}`} Skin={Skin} OnClick={() => OpenModal(Skin)}/>
                     ))}
                 </div>
             ) : (
@@ -289,5 +367,10 @@ export default function Page() {
                 </div>
             )}
         </main>
+
+        {SelectedSkin && (
+            <SkinModal Skin={SelectedSkin} Closing={ModalClosing} OnClose={CloseModal}/>
+        )}
+    </>
     );
 };

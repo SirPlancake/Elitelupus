@@ -69,9 +69,9 @@ export function Image({ src, alt, className = "", imgClassName = "" }: ImageProp
                 src={src}
                 alt={alt}
                 draggable={false}
-                className={`h-full w-full object-cover transition-opacity duration-200 ${
+                className={`h-full w-full transition-opacity duration-200 ${
                     status === "loaded" ? "opacity-100" : "opacity-0"
-                } ${imgClassName}`}
+                } ${imgClassName || "object-cover"}`}
             />
         </div>
     );
