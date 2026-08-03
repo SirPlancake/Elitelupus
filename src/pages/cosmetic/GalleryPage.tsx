@@ -288,19 +288,19 @@ export default function Page() {
                     <div className="flex items-center gap-2 rounded-md border border-zinc-800/75 bg-zinc-950/50 px-3 py-2 text-sm whitespace-nowrap">
                         <span className="text-white/40">Showing</span>
 
-                        <span className="font-mono font-semibold text-white">
+                        <span className="font-mono font-semibold text-white/70">
                             {StartIndex}
                         </span>
 
                         <span className="text-white/30">-</span>
 
-                        <span className="font-mono font-semibold text-white">
+                        <span className="font-mono font-semibold text-white/70">
                             {Math.min(StartIndex + SKINS_PER_PAGE, FilteredSkins.length)}
                         </span>
 
                         <span className="text-white/30">of</span>
 
-                        <span className="font-mono font-semibold text-white">
+                        <span className="font-mono font-semibold text-white/70">
                             {FilteredSkins.length}
                         </span>
 
@@ -315,7 +315,7 @@ export default function Page() {
 
                     <div className="flex h-9 items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-950/50 px-4 text-sm">
                         <span className="font-medium text-white/40">Page</span>
-                        <span className="font-mono font-semibold text-white">{Page}</span>
+                        <span className="font-mono font-semibold text-white/70">{Page}</span>
                         <span className="text-white/25">/</span>
                         <span className="font-mono text-white/60">{TotalPages}</span>
                     </div>
