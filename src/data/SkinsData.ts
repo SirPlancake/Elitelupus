@@ -730,4 +730,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.USER,
         created_at: 1785322093,
     },
+    {
+        name: "Logan",
+        internal_id: "Logan",
+        steam_id: "76561198411030221",
+        discord_id: "1116918149414141994",
+        file_path: "logan.gif",
+        type: SkinsType.SkinsRarity.ADMIN,
+        created_at: 1786273300,
+    },
 ];
