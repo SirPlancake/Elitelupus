@@ -739,4 +739,13 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.ADMIN,
         created_at: 1786273300,
     },
+    {
+        name: "Gradient",
+        internal_id: "Gradient",
+        steam_id: "N/A",
+        discord_id: null,
+        file_path: "gradient.gif",
+        type: SkinsType.SkinsRarity.RARE,
+        created_at: 1786351684,
+    },
 ];
