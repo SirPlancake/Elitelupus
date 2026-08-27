@@ -748,7 +748,7 @@ export const Skins: SkinsType.SkinsObject[] = [
         type: SkinsType.SkinsRarity.RARE,
         created_at: 1786351684,
     },
-        {
+    {
         name: "Bully",
         internal_id: "Bully",
         steam_id: "76561199887838220",
@@ -756,5 +756,14 @@ export const Skins: SkinsType.SkinsObject[] = [
         file_path: "bully.gif",
         type: SkinsType.SkinsRarity.USER,
         created_at: 1786368204,
+    },
+    {
+        name: "Jay",
+        internal_id: "Jay",
+        steam_id: "76561198271793756",
+        discord_id: "1520205958377246750",
+        file_path: "jay.gif",
+        type: SkinsType.SkinsRarity.ADMIN,
+        created_at: 1787853504,
     },
 ];
